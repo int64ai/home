@@ -1,7 +1,7 @@
 {
-  "updatedAt": "2026-03-21T06:23:18.811Z",
+  "updatedAt": "2026-03-21T06:31:14.412Z",
   "source": "naver_land",
-  "blocked": true,
+  "blocked": false,
   "complexes": [
     {
       "name": "상록마을3단지우성",
@@ -17,7 +17,7 @@
         "jeonse": 0,
         "sale": 0
       },
-      "scrapedAt": "2026-03-21T06:23:13.154Z"
+      "scrapedAt": "2026-03-21T06:29:53.804Z"
     },
     {
       "name": "상록마을1,2단지라이프",
@@ -33,7 +33,7 @@
         "jeonse": 0,
         "sale": 0
       },
-      "scrapedAt": "2026-03-21T06:23:17.311Z"
+      "scrapedAt": "2026-03-21T06:31:12.911Z"
     }
   ]
 }
