@@ -2,8 +2,13 @@ name: 네이버 부동산 크롤링
 
 on:
   schedule:
-    # 매 30분마다 실행 (KST 기준 06:00~24:00 = UTC 21:00~15:00)
+    # 매 30분마다 실행
     - cron: '*/30 * * * *'
+  push:
+    branches: [main]
+    paths:
+      - 'scripts/**'
+      - '.github/workflows/scrape.yml'
   workflow_dispatch: # 수동 실행 가능
 
 permissions:
