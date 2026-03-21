@@ -129,11 +129,13 @@
         <div class="card"><div class="lbl" style="color:var(--sale)">매매</div><div class="val" style="color:var(--sale)">${totalSale}건</div></div>
         <div class="card"><div class="lbl" style="color:var(--jeonse)">전세</div><div class="val" style="color:var(--jeonse)">${totalJeonse}건</div></div>
         <div class="card"><div class="lbl">우성 최근 매매</div><div class="val" style="font-size:1.5rem">${h(ws?.latestSale?.price||'—')}</div>
-        <div class="detail">${ws?.latestSale?h(ws.latestSale.area)+' · '+ws.latestSale.floor+'층'+(ws.latestSale.dong?' · '+ws.latestSale.dong+'동':'')+' · '+fmtD(ws.latestSale.date):''}</div></div>
+        <div class="detail">${ws?.latestSale?(ws.latestSale.pyeong||'')+'평 · '+ws.latestSale.floor+'층'+(ws.latestSale.dong?' · '+ws.latestSale.dong+'동':'')+' · '+fmtD(ws.latestSale.date):''}</div></div>
       `;
 
       document.getElementById('content').innerHTML = cx.map(renderSection).join('');
       initFilters();
+      // 기본: 전세 탭 활성화 → 전세만 표시
+      document.querySelectorAll('.section').forEach(applyFilters);
     }
 
     function renderSection(c) {
@@ -151,21 +153,21 @@
         <div class="latest-box">
           ${c.latestSale?`<div class="latest-card"><div class="type sale">최근 매매</div>
             <div class="price sale">${h(c.latestSale.price)}</div>
-            <div class="meta">${h(c.latestSale.area)}<br>${c.latestSale.floor}층${c.latestSale.dong?' · '+h(c.latestSale.dong)+'동':''} · ${fmtD(c.latestSale.date)}</div>
+            <div class="meta">${c.latestSale.pyeong||''}평 · ${c.latestSale.floor}층${c.latestSale.dong?' · '+h(c.latestSale.dong)+'동':''} · ${fmtD(c.latestSale.date)}</div>
           </div>`:'<div class="latest-card"><div class="type sale">최근 매매</div><div class="price">—</div></div>'}
           ${c.latestJeonse?`<div class="latest-card"><div class="type jeonse">최근 전세</div>
             <div class="price jeonse">${h(c.latestJeonse.price)}</div>
-            <div class="meta">${h(c.latestJeonse.area)}<br>${c.latestJeonse.floor}층 · ${fmtD(c.latestJeonse.date)}</div>
+            <div class="meta">${c.latestJeonse.pyeong||''}평 · ${c.latestJeonse.floor}층 · ${fmtD(c.latestJeonse.date)}</div>
           </div>`:'<div class="latest-card"><div class="type jeonse">최근 전세</div><div class="price">—</div></div>'}
         </div>
         <div class="filter-row trade-tabs">
-          <div class="pill active all" data-type="all">전체 ${trades.length}</div>
+          <div class="pill active jeonse" data-type="전세">전세 ${c.count.jeonse}</div>
           <div class="pill sale" data-type="매매">매매 ${c.count.sale}</div>
-          <div class="pill jeonse" data-type="전세">전세 ${c.count.jeonse}</div>
+          <div class="pill all" data-type="all">전체 ${trades.length}</div>
         </div>
         <div class="filter-row area-tabs">
           <div class="area-pill active" data-area="all">전체</div>
-          ${areas.map(a=>`<div class="area-pill" data-area="${h(a.raw)}">${h(a.label)}</div>`).join('')}
+          ${areas.map(a=>`<div class="area-pill" data-area="${h(a.raw)}">${a.pyeong}평</div>`).join('')}
         </div>
         ${trades.length?`
         <div class="tbl-wrap"><table><thead><tr>
@@ -176,7 +178,7 @@
             return `<tr data-type="${h(t.tradeType)}" data-area="${h(t.areaRaw)}">
               <td><span class="tag ${cl}">${h(t.tradeType)}</span></td>
               <td class="price-c ${cl}">${h(t.priceFormatted)}</td>
-              <td>${h(t.areaLabel)}</td>
+              <td>${t.pyeong}평</td>
               <td>${t.floor||'—'}층</td>
               <td class="${t.dong?'dong-c':'muted'}">${t.dong?h(t.dong)+'동':'—'}</td>
               <td class="muted">${h(t.dateStr)}</td>

@@ -125,9 +125,9 @@ async function main() {
       address: cx.address, totalUnits: cx.totalUnits, dongs: cx.dongs, builtYear: cx.builtYear,
       areas,
       latestSale: sales[0] ? { price: fmtPrice(sales[0].price), priceRaw: sales[0].price,
-        floor: sales[0].floor, dong: sales[0].dong, area: sales[0].areaLabel, date: sales[0].date } : null,
+        floor: sales[0].floor, dong: sales[0].dong, area: sales[0].areaLabel, pyeong: sales[0].pyeong, date: sales[0].date } : null,
       latestJeonse: jeonse[0] ? { price: fmtPrice(jeonse[0].deposit), priceRaw: jeonse[0].deposit,
-        floor: jeonse[0].floor, area: jeonse[0].areaLabel, date: jeonse[0].date } : null,
+        floor: jeonse[0].floor, area: jeonse[0].areaLabel, pyeong: jeonse[0].pyeong, date: jeonse[0].date } : null,
       trades: allTrades.map(t => ({
         ...t,
         priceFormatted: t.tradeType === '매매' ? fmtPrice(t.price) : fmtPrice(t.deposit),

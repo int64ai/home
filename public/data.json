@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-03-21T06:09:41.303Z",
+  "updatedAt": "2026-03-21T06:15:40.566Z",
   "source": "hogangnono",
   "complexes": [
     {
@@ -60,6 +60,7 @@
         "floor": 4,
         "dong": "",
         "area": "전용 57.27㎡ (17평)",
+        "pyeong": 17,
         "date": "2026-02-06T15:00:00.000Z"
       },
       "latestJeonse": {
@@ -67,6 +68,7 @@
         "priceRaw": 100000,
         "floor": 15,
         "area": "전용 84.97㎡ (26평)",
+        "pyeong": 26,
         "date": "2026-03-19T15:00:00.000Z"
       },
       "trades": [
@@ -2225,6 +2227,7 @@
         "floor": 3,
         "dong": "105",
         "area": "152㎡ (46평)",
+        "pyeong": 46,
         "date": "2025-10-16T15:00:00.000Z"
       },
       "latestJeonse": {
@@ -2232,6 +2235,7 @@
         "priceRaw": 56000,
         "floor": 4,
         "area": "91㎡ (28평)",
+        "pyeong": 28,
         "date": "2026-02-26T15:00:00.000Z"
       },
       "trades": [
