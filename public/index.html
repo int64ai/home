@@ -8,165 +8,308 @@
   <style>
     *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
     :root{
-      --bg:#f8f8f6;--surface:#fff;--border:#e8e6e1;
-      --text-1:#1a1a18;--text-2:#6b6960;--text-3:#9b9689;
-      --sale:#c73e1d;--jeonse:#2563eb;
-      --radius:14px;
-      --shadow:0 1px 3px rgba(0,0,0,.04),0 4px 12px rgba(0,0,0,.03);
+      --bg:#fafaf8;--surface:#fff;--border:#eae8e3;--border-light:#f2f0ec;
+      --text-1:#1c1b18;--text-2:#6b6960;--text-3:#a09a8f;
+      --sale:#d4421e;--sale-bg:#fef2ef;--sale-border:#fcd5ca;
+      --jeonse:#1d63d4;--jeonse-bg:#eef4ff;--jeonse-border:#c5d9f8;
+      --wolse:#7c3aed;--wolse-bg:#f5f0ff;
+      --accent:#e8a817;
+      --radius:12px;--radius-sm:8px;
+      --shadow:0 1px 2px rgba(0,0,0,.03),0 4px 16px rgba(0,0,0,.02);
+      --shadow-hover:0 2px 8px rgba(0,0,0,.06),0 8px 24px rgba(0,0,0,.04);
     }
-    html{font-size:16px}
-    body{font-family:'Pretendard Variable',-apple-system,system-ui,sans-serif;background:var(--bg);color:var(--text-1);line-height:1.65;-webkit-font-smoothing:antialiased}
-    .header{padding:2.5rem 0 1.5rem;text-align:center}
-    .header h1{font-size:1.75rem;font-weight:800;letter-spacing:-.03em}
-    .header .sub{color:var(--text-2);font-size:1rem;margin-top:.3rem}
-    .status{display:flex;align-items:center;justify-content:center;gap:.5rem;margin-top:.8rem;font-size:.88rem;color:var(--text-3)}
-    .dot{width:7px;height:7px;border-radius:50%;background:#22c55e;animation:pulse 2s ease-in-out infinite}
-    .dot.off{background:#ef4444;animation:none}
-    @keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
-    .container{max-width:1020px;margin:0 auto;padding:0 1.5rem 4rem}
-    .summary{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:1rem;margin-bottom:2.5rem}
-    .card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:1.3rem 1.5rem;box-shadow:var(--shadow)}
-    .card .lbl{font-size:.85rem;font-weight:600;color:var(--text-3);margin-bottom:.25rem}
-    .card .val{font-size:2rem;font-weight:800;letter-spacing:-.03em}
-    .card .detail{font-size:.88rem;color:var(--text-2);margin-top:.15rem}
-    .section{margin-bottom:3rem}
-    .section-head{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:1rem;padding-bottom:.7rem;border-bottom:2.5px solid var(--text-1)}
-    .section-title{font-size:1.5rem;font-weight:800}
-    .section-meta{font-size:.88rem;color:var(--text-2)}
-    .info-row{display:flex;flex-wrap:wrap;gap:.5rem 1.4rem;margin-bottom:1.2rem;font-size:.92rem;color:var(--text-2)}
-    .info-row span::before{content:'·';margin-right:.4rem;color:var(--text-3)}
-    .filter-row{display:flex;gap:.4rem;flex-wrap:wrap;margin-bottom:.8rem}
-    .pill{padding:.4rem 1rem;border-radius:100px;font-size:.88rem;font-weight:700;cursor:pointer;border:2px solid var(--border);background:var(--surface);color:var(--text-2);transition:all .15s;user-select:none}
-    .pill:hover{border-color:var(--text-3)}
-    .pill.active.jeonse{border-color:var(--jeonse);background:var(--jeonse);color:#fff}
-    .pill.active.sale{border-color:var(--sale);background:var(--sale);color:#fff}
-    .pill.active.all{border-color:var(--text-1);background:var(--text-1);color:#fff}
+    html{font-size:16px;scroll-behavior:smooth}
+    body{font-family:'Pretendard Variable',system-ui,-apple-system,sans-serif;background:var(--bg);color:var(--text-1);line-height:1.6;-webkit-font-smoothing:antialiased;min-height:100vh}
+
+    /* ── Header ── */
+    .header{padding:3rem 1.5rem 2rem;text-align:center;position:relative}
+    .header::after{content:'';display:block;width:48px;height:3px;background:var(--accent);margin:1.2rem auto 0;border-radius:2px}
+    .header h1{font-size:1.6rem;font-weight:800;letter-spacing:-.04em;color:var(--text-1)}
+    .header .sub{color:var(--text-2);font-size:.92rem;margin-top:.4rem;font-weight:500}
+    .status-bar{display:inline-flex;align-items:center;gap:.45rem;margin-top:.8rem;padding:.35rem .9rem;border-radius:100px;background:var(--surface);border:1px solid var(--border);font-size:.82rem;color:var(--text-3)}
+    .dot{width:6px;height:6px;border-radius:50%;background:#22c55e;flex-shrink:0}
+    .dot.live{animation:blink 2.5s ease-in-out infinite}
+    .dot.off{background:#d4421e;animation:none}
+    @keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
+
+    /* ── Layout ── */
+    .container{max-width:1080px;margin:0 auto;padding:0 1.5rem 5rem}
+
+    /* ── Summary Cards ── */
+    .summary{display:grid;grid-template-columns:repeat(3,1fr);gap:.75rem;margin-bottom:2.5rem}
+    .s-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:1.1rem 1.2rem;transition:box-shadow .2s}
+    .s-card:hover{box-shadow:var(--shadow-hover)}
+    .s-card .lbl{font-size:.78rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;margin-bottom:.2rem}
+    .s-card .val{font-size:1.8rem;font-weight:800;letter-spacing:-.03em;font-variant-numeric:tabular-nums}
+    .s-card .sub{font-size:.82rem;color:var(--text-3);margin-top:.1rem}
+    .s-card.total .lbl{color:var(--text-3)}.s-card.total .val{color:var(--text-1)}
+    .s-card.jeonse .lbl{color:var(--jeonse)}.s-card.jeonse .val{color:var(--jeonse)}
+    .s-card.sale .lbl{color:var(--sale)}.s-card.sale .val{color:var(--sale)}
+
+    /* ── Section ── */
+    .section{margin-bottom:2.5rem}
+    .section-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:.6rem}
+    .section-title{font-size:1.3rem;font-weight:800;letter-spacing:-.03em}
+    .section-info{font-size:.82rem;color:var(--text-3);text-align:right}
+    .section-divider{height:2px;background:linear-gradient(90deg,var(--text-1) 0%,var(--text-1) 40%,transparent 100%);margin-bottom:1rem;border-radius:1px}
+
+    /* ── Filter Pills ── */
+    .filters{display:flex;gap:.35rem;margin-bottom:1rem}
+    .pill{padding:.35rem .85rem;border-radius:100px;font-size:.82rem;font-weight:700;cursor:pointer;border:1.5px solid var(--border);background:var(--surface);color:var(--text-3);transition:all .15s;user-select:none}
+    .pill:hover{border-color:var(--text-3);color:var(--text-2)}
+    .pill.active.t-jeonse{border-color:var(--jeonse);background:var(--jeonse);color:#fff}
+    .pill.active.t-sale{border-color:var(--sale);background:var(--sale);color:#fff}
+    .pill.active.t-all{border-color:var(--text-1);background:var(--text-1);color:#fff}
+    .pill .cnt{opacity:.7;margin-left:.2rem}
+
+    /* ── Table ── */
     .tbl-wrap{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;box-shadow:var(--shadow)}
-    table{width:100%;border-collapse:collapse;font-size:.92rem}
-    thead{background:#fafaf8;border-bottom:1px solid var(--border)}
-    th{padding:.8rem 1rem;text-align:left;font-weight:700;font-size:.8rem;color:var(--text-3);text-transform:uppercase;letter-spacing:.04em;white-space:nowrap}
-    td{padding:.85rem 1rem;border-bottom:1px solid #f3f2ef;vertical-align:middle}
-    tr:last-child td{border-bottom:none}
-    tr:hover td{background:#fdfcfa}
-    .tag{display:inline-block;padding:.18rem .55rem;border-radius:5px;font-size:.8rem;font-weight:700}
-    .tag.sale{background:#fef2f2;color:var(--sale)}.tag.jeonse{background:#eff6ff;color:var(--jeonse)}
-    .price-c{font-weight:800;font-size:1rem;font-variant-numeric:tabular-nums}
-    .price-c.sale{color:var(--sale)}.price-c.jeonse{color:var(--jeonse)}
-    .desc{font-size:.85rem;color:var(--text-2);max-width:240px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-    .muted{color:var(--text-3)}
-    .empty{text-align:center;padding:3rem;color:var(--text-3);font-size:1rem}
-    .footer{text-align:center;padding:2rem;font-size:.82rem;color:var(--text-3);border-top:1px solid var(--border)}
-    .footer a{color:var(--text-2);text-decoration:none}
-    @media(max-width:640px){html{font-size:15px}.container{padding:0 1rem 3rem}.tbl-wrap{overflow-x:auto}table{min-width:650px}}
+    table{width:100%;border-collapse:collapse;font-size:.88rem}
+    thead{background:#f9f8f6}
+    th{padding:.65rem .85rem;text-align:left;font-weight:700;font-size:.75rem;color:var(--text-3);text-transform:uppercase;letter-spacing:.05em;white-space:nowrap;border-bottom:1px solid var(--border)}
+    td{padding:.7rem .85rem;border-bottom:1px solid var(--border-light);vertical-align:middle}
+    tbody tr:last-child td{border-bottom:none}
+    tbody tr{transition:background .1s}
+    tbody tr:hover td{background:#fdfcfa}
+
+    .tag{display:inline-block;padding:.15rem .5rem;border-radius:5px;font-size:.75rem;font-weight:700;line-height:1.4}
+    .tag.sale{background:var(--sale-bg);color:var(--sale);border:1px solid var(--sale-border)}
+    .tag.jeonse{background:var(--jeonse-bg);color:var(--jeonse);border:1px solid var(--jeonse-border)}
+
+    .price{font-weight:800;font-size:.95rem;font-variant-numeric:tabular-nums;white-space:nowrap}
+    .price.sale{color:var(--sale)}.price.jeonse{color:var(--jeonse)}
+    .price-sub{font-size:.78rem;color:var(--text-3);font-weight:500}
+
+    .area-main{font-weight:700;white-space:nowrap}
+    .area-sub{font-size:.78rem;color:var(--text-3)}
+
+    .desc{font-size:.82rem;color:var(--text-2);max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+    .muted{color:var(--text-3);font-size:.82rem}
+    .cp{display:inline-block;padding:.08rem .35rem;border-radius:3px;font-size:.7rem;font-weight:600;background:#f0eee9;color:var(--text-3);margin-left:.25rem;vertical-align:middle}
+
+    .empty{text-align:center;padding:3rem 1rem;color:var(--text-3);font-size:.95rem}
+    .empty-icon{font-size:2rem;margin-bottom:.5rem;opacity:.5}
+
+    /* ── Footer ── */
+    .footer{text-align:center;padding:2rem 1.5rem;font-size:.78rem;color:var(--text-3);border-top:1px solid var(--border)}
+    .footer a{color:var(--text-2);text-decoration:none;font-weight:600}
+    .footer a:hover{text-decoration:underline}
+
+    /* ── Responsive ── */
+    @media(max-width:768px){
+      .summary{grid-template-columns:repeat(3,1fr);gap:.5rem}
+      .s-card{padding:.85rem .9rem}
+      .s-card .val{font-size:1.4rem}
+    }
+    @media(max-width:640px){
+      html{font-size:15px}
+      .container{padding:0 1rem 3rem}
+      .header{padding:2rem 1rem 1.5rem}
+      .tbl-wrap{border-radius:var(--radius-sm);overflow-x:auto;-webkit-overflow-scrolling:touch}
+      table{min-width:680px}
+    }
+
+    /* ── Entrance animation ── */
+    .section,.s-card{opacity:0;transform:translateY(12px);animation:fadeUp .4s ease forwards}
+    .s-card:nth-child(1){animation-delay:.05s}
+    .s-card:nth-child(2){animation-delay:.1s}
+    .s-card:nth-child(3){animation-delay:.15s}
+    .section:nth-of-type(1){animation-delay:.2s}
+    .section:nth-of-type(2){animation-delay:.3s}
+    @keyframes fadeUp{to{opacity:1;transform:none}}
   </style>
 </head>
 <body>
   <div class="header">
     <h1>분당 정자동 아파트 매물</h1>
     <p class="sub">상록마을우성 · 상록마을라이프</p>
-    <div class="status"><span class="dot" id="dot"></span><span id="st">로딩 중...</span></div>
+    <div class="status-bar">
+      <span class="dot live" id="dot"></span>
+      <span id="st">데이터 로딩 중…</span>
+    </div>
   </div>
   <div class="container">
     <div class="summary" id="summary"></div>
-    <div id="content"><div class="empty">데이터 로딩 중...</div></div>
+    <div id="content"></div>
   </div>
   <div class="footer">
-    데이터: <a href="https://asil.kr" target="_blank">아실</a> (네이버 부동산 동일 KISO 데이터) · 30분 자동 업데이트 · 참고용
+    데이터 <a href="https://land.naver.com" target="_blank" rel="noopener">네이버 부동산</a> · 30분 자동 갱신 · 투자 참고용
   </div>
-  <script>
-    const h = s => { const d = document.createElement('div'); d.textContent = s||''; return d.innerHTML; };
-    const fmtKST = d => {
-      if (!d) return '—';
-      const dt = new Date(new Date(d).getTime()+9*3600000);
-      return `${dt.getFullYear()}.${String(dt.getMonth()+1).padStart(2,'0')}.${String(dt.getDate()).padStart(2,'0')} ${String(dt.getHours()).padStart(2,'0')}:${String(dt.getMinutes()).padStart(2,'0')}`;
-    };
-    const ago = d => {
-      if(!d)return'';const m=Math.floor((Date.now()-new Date(d).getTime())/60000);
-      if(m<60)return m+'분 전';const hr=Math.floor(m/60);if(hr<24)return hr+'시간 전';return Math.floor(hr/24)+'일 전';
-    };
 
-    function render(data) {
-      if (!data.updatedAt) {
-        document.getElementById('dot').classList.add('off');
-        document.getElementById('st').textContent = '데이터 대기 중';
-        return;
-      }
-      document.getElementById('dot').classList.remove('off');
-      document.getElementById('st').textContent = `${fmtKST(data.updatedAt)} KST (${ago(data.updatedAt)})`;
+<script>
+const esc = s => {const d=document.createElement('div');d.textContent=s||'';return d.innerHTML};
 
-      const cx = data.complexes || [];
-      const totalAll = cx.reduce((s,c)=>s+(c.count?.total||0),0);
-      const totalJ = cx.reduce((s,c)=>s+(c.count?.jeonse||0),0);
-      const totalS = cx.reduce((s,c)=>s+(c.count?.sale||0),0);
+/* ── 가격 포맷 (원 단위) ── */
+function fmtWon(v) {
+  if (!v) return null;
+  const n = typeof v==='number' ? v : Number(String(v).replace(/,/g,''));
+  if (isNaN(n) || n===0) return null;
+  const eok = Math.floor(n / 1_0000_0000);
+  const man = Math.floor((n % 1_0000_0000) / 1_0000);
+  if (eok>0 && man>0) return `${eok}억 ${man.toLocaleString()}`;
+  if (eok>0) return `${eok}억`;
+  if (man>0) return `${man.toLocaleString()}만`;
+  return n.toLocaleString()+'원';
+}
 
-      document.getElementById('summary').innerHTML = `
-        <div class="card"><div class="lbl">총 매물</div><div class="val">${totalAll}건</div><div class="detail">${cx.length}개 단지</div></div>
-        <div class="card"><div class="lbl" style="color:var(--jeonse)">전세</div><div class="val" style="color:var(--jeonse)">${totalJ}건</div></div>
-        <div class="card"><div class="lbl" style="color:var(--sale)">매매</div><div class="val" style="color:var(--sale)">${totalS}건</div></div>
-      `;
-      document.getElementById('content').innerHTML = cx.map(renderSection).join('');
-      initFilters();
-      document.querySelectorAll('.section').forEach(applyFilters);
-    }
+/* price 필드 or priceRaw */
+function showPrice(a) {
+  // priceRaw 우선
+  const fromRaw = fmtWon(a.priceRaw);
+  if (fromRaw) return fromRaw;
+  // price 필드가 정상이면 사용
+  if (a.price && !/\d{4,}억/.test(a.price)) return a.price;
+  return '—';
+}
+function showRent(a) {
+  const fromRaw = fmtWon(a.rentRaw);
+  if (fromRaw) return fromRaw;
+  if (a.rent && !/\d{4,}억/.test(a.rent)) return a.rent;
+  return '';
+}
 
-    function renderSection(c) {
-      const arts = c.articles || [];
-      const info = [c.address, c.totalUnits?c.totalUnits+'세대':'', c.builtYear+' 준공'].filter(Boolean);
+/* ── 방향 매핑 ── */
+const DIR = {NN:'북',SS:'남',EE:'동',WW:'서',NE:'북동',NW:'북서',SE:'남동',SW:'남서',NS:'남북',EW:'동서'};
+function dir(d){return DIR[d]||d||''}
 
-      return `
-      <div class="section">
-        <div class="section-head">
-          <span class="section-title">${h(c.alias)}</span>
-          <span class="section-meta">${h(c.name)}</span>
-        </div>
-        <div class="info-row">${info.map(i=>`<span>${h(i)}</span>`).join('')}</div>
-        <div class="filter-row trade-tabs">
-          <div class="pill active all" data-type="all">전체 ${arts.length}</div>
-          <div class="pill jeonse" data-type="전세">전세 ${c.count?.jeonse||0}</div>
-          <div class="pill sale" data-type="매매">매매 ${c.count?.sale||0}</div>
-        </div>
-        ${arts.length?`
-        <div class="tbl-wrap"><table><thead><tr>
-          <th>유형</th><th>가격</th><th>면적</th><th>층</th><th>동</th><th>등록일</th><th>특징</th><th>중개사</th>
-        </tr></thead><tbody>
-          ${arts.map(a=>{
-            const cl=a.tradeType==='매매'?'sale':'jeonse';
-            const area = a.pyeong ? a.pyeong+'평' : (a.exclusiveArea ? a.exclusiveArea+'㎡' : '—');
-            const flr = a.floor ? a.floor+'층' + (a.totalFloor ? '/'+a.totalFloor : '') : '—';
-            return `<tr data-type="${h(a.tradeType)}">
-              <td><span class="tag ${cl}">${h(a.tradeType)}</span></td>
-              <td class="price-c ${cl}">${h(a.price)}${a.rent?' / '+h(a.rent):''}</td>
-              <td>${area}</td>
-              <td>${flr}</td>
-              <td>${a.dong?h(a.dong)+'동':'—'}</td>
-              <td class="muted">${h(a.confirmDate)}</td>
-              <td class="desc" title="${h(a.description)}">${h(a.description)||'—'}</td>
-              <td class="muted" style="font-size:.82rem">${h(a.realtor)}</td>
-            </tr>`;
-          }).join('')}
-        </tbody></table></div>
-        `:'<div class="empty">현재 등록된 매물 없음</div>'}
-      </div>`;
-    }
+/* ── 시간 ── */
+function fmtKST(iso){
+  if(!iso)return'—';
+  const d=new Date(iso);
+  const k=new Date(d.getTime()+9*36e5);
+  const pad=n=>String(n).padStart(2,'0');
+  return `${k.getFullYear()}.${pad(k.getMonth()+1)}.${pad(k.getDate())} ${pad(k.getHours())}:${pad(k.getMinutes())}`;
+}
+function ago(iso){
+  if(!iso)return'';
+  const m=Math.floor((Date.now()-new Date(iso).getTime())/6e4);
+  if(m<1)return'방금';if(m<60)return m+'분 전';
+  const h=Math.floor(m/60);if(h<24)return h+'시간 전';
+  return Math.floor(h/24)+'일 전';
+}
 
-    function initFilters(){
-      document.querySelectorAll('.trade-tabs').forEach(tabs=>{
-        tabs.querySelectorAll('.pill').forEach(p=>{
-          p.onclick=()=>{tabs.querySelectorAll('.pill').forEach(x=>x.classList.remove('active'));p.classList.add('active');applyFilters(p.closest('.section'));};
-        });
-      });
-    }
-    function applyFilters(s){
-      const t=s.querySelector('.pill.active')?.dataset.type||'all';
-      s.querySelectorAll('tbody tr').forEach(tr=>{tr.style.display=(t==='all'||tr.dataset.type===t)?'':'none';});
-    }
+/* ── 단지 메타정보 (data.json에 없으면 하드코딩) ── */
+const META = {
+  '2645': { address:'성남시 분당구 정자동 121', built:'1997년', units:'1,762세대' },
+  '2623': { address:'성남시 분당구 정자동 124', built:'1996년', units:'466세대' }
+};
 
-    async function load(){
-      try{const r=await fetch('./data.json?t='+Date.now());render(await r.json());}
-      catch{document.getElementById('dot').classList.add('off');}
-    }
-    load();
-    setInterval(load,300000);
-  </script>
+/* ── Render ── */
+function render(data) {
+  if (!data?.updatedAt) {
+    document.getElementById('dot').classList.add('off');
+    document.getElementById('dot').classList.remove('live');
+    document.getElementById('st').textContent = '데이터 없음';
+    return;
+  }
+  document.getElementById('dot').classList.remove('off');
+  document.getElementById('dot').classList.add('live');
+  document.getElementById('st').textContent = `${fmtKST(data.updatedAt)} KST · ${ago(data.updatedAt)}`;
+
+  const cx = data.complexes || [];
+  const tAll = cx.reduce((s,c)=>s+(c.count?.total||0),0);
+  const tJ = cx.reduce((s,c)=>s+(c.count?.jeonse||0),0);
+  const tS = cx.reduce((s,c)=>s+(c.count?.sale||0),0);
+
+  document.getElementById('summary').innerHTML = `
+    <div class="s-card total"><div class="lbl">총 매물</div><div class="val">${tAll}</div><div class="sub">${cx.length}개 단지</div></div>
+    <div class="s-card jeonse"><div class="lbl">전세</div><div class="val">${tJ}</div></div>
+    <div class="s-card sale"><div class="lbl">매매</div><div class="val">${tS}</div></div>
+  `;
+
+  document.getElementById('content').innerHTML = cx.map(section).join('');
+  initTabs();
+}
+
+function section(c) {
+  const m = META[c.complexNo] || {};
+  const arts = c.articles || [];
+  const infoText = [m.address, m.units, m.built ? m.built+' 준공' : ''].filter(Boolean).join(' · ');
+
+  return `
+  <div class="section" data-cx="${c.complexNo}">
+    <div class="section-head">
+      <span class="section-title">${esc(c.alias)}</span>
+      <span class="section-info">${esc(infoText)}</span>
+    </div>
+    <div class="section-divider"></div>
+    <div class="filters" data-tabs>
+      <div class="pill t-jeonse active" data-t="전세">전세<span class="cnt">${c.count?.jeonse||0}</span></div>
+      <div class="pill t-sale" data-t="매매">매매<span class="cnt">${c.count?.sale||0}</span></div>
+      <div class="pill t-all" data-t="all">전체<span class="cnt">${arts.length}</span></div>
+    </div>
+    ${arts.length ? renderTable(arts) : '<div class="empty"><div class="empty-icon">📭</div>현재 등록된 매물이 없습니다</div>'}
+  </div>`;
+}
+
+function renderTable(arts) {
+  return `<div class="tbl-wrap"><table>
+    <thead><tr>
+      <th style="width:52px">유형</th>
+      <th>가격</th>
+      <th>면적</th>
+      <th>층</th>
+      <th>향</th>
+      <th>등록</th>
+      <th>특징</th>
+      <th>중개</th>
+    </tr></thead>
+    <tbody>${arts.map(row).join('')}</tbody>
+  </table></div>`;
+}
+
+function row(a) {
+  const cl = a.tradeType==='매매' ? 'sale' : 'jeonse';
+  const price = showPrice(a);
+  const rent = showRent(a);
+  const priceHtml = rent
+    ? `<div class="price ${cl}">${price}</div><div class="price-sub">월 ${rent}</div>`
+    : `<div class="price ${cl}">${price}</div>`;
+
+  const areaHtml = a.pyeong
+    ? `<span class="area-main">${a.pyeong}평</span>${a.area ? `<br><span class="area-sub">${a.area}㎡</span>`:''}`
+    : (a.area ? a.area+'㎡' : '—');
+
+  return `<tr data-t="${esc(a.tradeType)}">
+    <td><span class="tag ${cl}">${esc(a.tradeType)}</span></td>
+    <td>${priceHtml}</td>
+    <td>${areaHtml}</td>
+    <td class="muted">${esc(a.floor)||'—'}</td>
+    <td class="muted">${esc(dir(a.direction))||'—'}</td>
+    <td class="muted">${esc(a.confirmDate)}</td>
+    <td><div class="desc" title="${esc(a.description)}">${esc(a.description)||'—'}</div></td>
+    <td class="muted">${esc(a.realtor)}${a.cpName?`<span class="cp">${esc(a.cpName)}</span>`:''}</td>
+  </tr>`;
+}
+
+/* ── Tab filter ── */
+function initTabs() {
+  document.querySelectorAll('[data-tabs]').forEach(tabs => {
+    tabs.querySelectorAll('.pill').forEach(p => {
+      p.onclick = () => {
+        tabs.querySelectorAll('.pill').forEach(x=>x.classList.remove('active'));
+        p.classList.add('active');
+        filter(tabs.closest('.section'));
+      };
+    });
+    // default: 전세 active
+    filter(tabs.closest('.section'));
+  });
+}
+function filter(sec) {
+  const t = sec.querySelector('.pill.active')?.dataset.t || 'all';
+  sec.querySelectorAll('tbody tr').forEach(tr => {
+    tr.style.display = (t==='all' || tr.dataset.t===t) ? '' : 'none';
+  });
+}
+
+/* ── Load ── */
+async function load() {
+  try { const r=await fetch('./data.json?_='+Date.now()); render(await r.json()); }
+  catch { document.getElementById('dot').classList.add('off'); document.getElementById('dot').classList.remove('live'); }
+}
+load();
+setInterval(load, 5*60*1000);
+</script>
 </body>
 </html>
