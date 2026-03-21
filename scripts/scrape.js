@@ -43,16 +43,23 @@ async function api(endpoint) {
   const url = `${API_BASE}${endpoint}`;
   try {
     const res = await fetch(url, { headers: HEADERS, signal: AbortSignal.timeout(15000) });
+    log(`  → ${res.status} ${endpoint}`);
     if (res.status === 429) {
-      log(`  ⚠ 429 차단: ${endpoint}`);
       return { error: '429', blocked: true };
     }
     if (!res.ok) {
-      log(`  ⚠ ${res.status}: ${endpoint}`);
+      const text = await res.text().catch(() => '');
+      log(`    body: ${text.slice(0, 300)}`);
       return { error: res.status };
     }
-    const data = await res.json();
-    return data.result || data;
+    const raw = await res.text();
+    log(`    raw[${raw.length}]: ${raw.slice(0, 200)}`);
+    try {
+      const data = JSON.parse(raw);
+      return data.result !== undefined ? data.result : data;
+    } catch {
+      return { error: 'json_parse' };
+    }
   } catch (err) {
     log(`  ✗ ${endpoint}: ${err.message}`);
     return { error: err.message };
