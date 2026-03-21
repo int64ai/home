@@ -15,8 +15,8 @@ const path = require('path');
 
 // ─── 설정 ───────────────────────────────────────────────
 const TARGET_COMPLEXES = [
-  { keyword: '상록우성', region: '분당' },
-  { keyword: '상록라이프', region: '분당' }
+  { keyword: '상록마을우성', alias: '상록우성 (3단지)', region: '분당구 정자동', fallbackKeywords: ['상록마을3단지우성', '상록우성 정자동'] },
+  { keyword: '상록마을라이프', alias: '상록라이프 (1,2단지)', region: '분당구 정자동', fallbackKeywords: ['상록마을1,2단지라이프', '상록라이프 정자동'] }
 ];
 
 const DATA_PATH = path.join(__dirname, '..', 'public', 'data.json');
@@ -107,8 +107,16 @@ async function main() {
 // ─── 단지별 스크래핑 ────────────────────────────────────
 async function scrapeComplex(page, context, target) {
   try {
-    // Step 1: 검색으로 단지 번호 찾기
-    const complexInfo = await searchComplex(page, target.keyword);
+    // Step 1: 검색으로 단지 번호 찾기 (fallback 키워드 포함)
+    let complexInfo = await searchComplex(page, target.keyword);
+    if (!complexInfo && target.fallbackKeywords) {
+      for (const fb of target.fallbackKeywords) {
+        log(`  fallback 검색: ${fb}`);
+        complexInfo = await searchComplex(page, fb);
+        if (complexInfo) break;
+        await sleep(1500);
+      }
+    }
     if (!complexInfo) {
       log(`  검색 결과 없음: ${target.keyword}`);
       return null;
