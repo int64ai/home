@@ -27,6 +27,7 @@ function normalizeRawArticle(raw) {
 
   return {
     articleNumber: src.articleNumber || '',
+    tradeType: src.tradeType || '',
     dealPrice: priceInfo.dealPrice ?? src.dealPrice ?? 0,
     warrantyAmount: priceInfo.warrantyPrice ?? src.warrantyAmount ?? 0,
     rentAmount: priceInfo.rentPrice ?? src.rentAmount ?? 0,
@@ -115,58 +116,60 @@ async function scrapeComplex(page, complexNo, tradeType) {
 
 async function scrapeViaIntercept(page, complexNo, tradeType) {
   const url = `https://fin.land.naver.com/complexes/${complexNo}?tab=article&${tradeType.tab}`;
-  log(`  ${tradeType.name} (intercept): ${url}`);
-  const apiData = [];
+  log(`  ${tradeType.name} (browser fetch): ${url}`);
+  await page.goto(url, { waitUntil: 'networkidle', timeout: 45000 });
+  await sleep(2000);
 
-  const onResponse = async response => {
-    const reqUrl = response.url();
-    if (reqUrl.includes('/complex/article/list')) {
-      try {
-        if (response.status() !== 200) {
-          log(`  ⚠ 인터셉트 상태코드: ${response.status()}`);
-          return;
-        }
-        const json = await response.json();
-        const extracted = extractArticlesFromPayload(json);
-        if (extracted.length > 0) {
-          log(`  ✓ API 인터셉트: ${extracted.length}건`);
-          apiData.push(...extracted);
-        }
-      } catch {
+  const payloads = await page.evaluate(async ({ complexNoIn, tradeTypeCode }) => {
+    const out = [];
+    let lastInfo = [];
+    for (let pageNo = 1; pageNo <= 5; pageNo++) {
+      const res = await fetch('/front-api/v1/complex/article/list', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({
+          size: 30,
+          complexNumber: complexNoIn,
+          tradeTypes: [tradeTypeCode],
+          pyeongTypes: [],
+          dongNumbers: [],
+          userChannelType: 'PC',
+          articleSortType: 'RANKING_DESC',
+          lastInfo
+        })
+      });
+      if (!res.ok) {
+        out.push({ __errorStatus: res.status });
+        break;
       }
+      const json = await res.json();
+      out.push(json);
+      const result = json?.result || {};
+      const list = Array.isArray(result.list) ? result.list : [];
+      if (!result.hasNextPage || list.length === 0) break;
+      lastInfo = Array.isArray(result.lastInfo) ? result.lastInfo : [];
+      await new Promise(r => setTimeout(r, 800));
     }
-  };
+    return out;
+  }, { complexNoIn: complexNo, tradeTypeCode: tradeType.code });
 
-  page.on('response', onResponse);
-  try {
-    await page.goto(url, { waitUntil: 'networkidle', timeout: 45000 });
-    await sleep(2500);
-
-    for (let i = 0; i < 5; i++) {
-      await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight));
-      await sleep(2000);
-    }
-  } finally {
-    page.off('response', onResponse);
+  const errorPayload = payloads.find(p => p && p.__errorStatus);
+  if (errorPayload) {
+    log(`  ⚠ browser fetch 상태코드: ${errorPayload.__errorStatus}`);
   }
 
-  const unique = [];
-  const seen = new Set();
-  for (const item of apiData) {
-    const key = item.articleNumber || JSON.stringify(item);
-    if (seen.has(key)) continue;
-    seen.add(key);
-    unique.push(item);
-  }
-  if (unique.length > 0) {
-    return unique;
+  const merged = [];
+  payloads.forEach(p => merged.push(...extractArticlesFromPayload(p)));
+  if (merged.length > 0) {
+    return merged;
   }
 
-  log('  ⚠ 인터셉트 데이터 없음, DOM fallback 시도');
+  log('  ⚠ browser fetch 데이터 없음, DOM fallback 시도');
   const dom = await scrapeComplex(page, complexNo, tradeType);
   if (dom?.source === 'dom' && Array.isArray(dom.items) && dom.items.length > 0) {
     return dom.items.map((d, idx) => ({
       articleNumber: `DOM-${complexNo}-${tradeType.code}-${idx + 1}`,
+      tradeType: tradeType.code,
       dealPrice: 0,
       warrantyAmount: 0,
       rentAmount: 0,
@@ -201,8 +204,10 @@ function fmtPrice(won) {
 
 const DIR_MAP = { NN:'북', SS:'남', EE:'동', WW:'서', NE:'북동', NW:'북서', SE:'남동', SW:'남서', NS:'남북', EW:'동서' };
 
-function parseArticle(a, tradeTypeName) {
-  const isSale = tradeTypeName === '매매';
+function parseArticle(a) {
+  const tradeTypeCode = String(a.tradeType || '').toUpperCase();
+  const isSale = tradeTypeCode === 'A1';
+  const tradeTypeName = isSale ? '매매' : '전세';
   const priceRaw = isSale
     ? Number(String(a.dealPrice || 0).replace(/,/g, ''))
     : Number(String(a.warrantyAmount || 0).replace(/,/g, ''));
@@ -251,7 +256,8 @@ async function main() {
 
     for (const tt of TRADE_TYPES) {
       const rawArticles = await scrapeViaIntercept(page, cx.no, tt);
-      const parsed = rawArticles.map(a => parseArticle(a, tt.name));
+      const filtered = rawArticles.filter(a => String(a.tradeType || '').toUpperCase() === tt.code);
+      const parsed = filtered.map(a => parseArticle(a));
       allArticles.push(...parsed);
       log(`  ${tt.name}: ${parsed.length}건`);
       await sleep(3000);
