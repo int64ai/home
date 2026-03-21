@@ -1,36 +1,53 @@
 /**
- * 네이버 부동산 크롤러 v2 — Playwright 없이 순수 HTTP
+ * 아파트 매물 트래커 v3 — 호갱노노 API
  * 
- * 전략:
- * 1. fin.land.naver.com 메인에서 세션 쿠키 확보
- * 2. front-api로 단지 상세 + 매물 조회
- * 3. data.json 저장
+ * 데이터 소스: hogangnono.com/api/v2
+ * - 실거래가 (매매/전세/월세)
+ * - 지역 시세 비교
+ * - 평형별 정보
  */
 
 const fs = require('fs');
 const path = require('path');
 
 const DATA_PATH = path.join(__dirname, '..', 'public', 'data.json');
-const BASE_URL = 'https://fin.land.naver.com';
+const API_BASE = 'https://hogangnono.com';
 
-const TARGET_COMPLEXES = [
-  { keyword: '상록마을우성', alias: '상록우성 (3단지)', complexNumber: '2645', region: '분당구 정자동' },
-  { keyword: '상록마을라이프', alias: '상록라이프 (1,2단지)', complexNumber: '2623', region: '분당구 정자동' }
+const COMPLEXES = [
+  {
+    hash: '5dt68',
+    name: '상록마을3단지우성',
+    alias: '상록우성',
+    naverComplexNo: '2645',
+    address: '경기도 성남시 분당구 내정로 55 (정자동 121)',
+    totalUnits: 1762,
+    dongs: '301~328동 (304 제외)',
+    builtYear: '1997'
+  },
+  {
+    hash: '5ds32',
+    name: '상록마을1,2단지라이프',
+    alias: '상록라이프',
+    naverComplexNo: '2623',
+    address: '경기도 성남시 분당구 정자로 56 (정자동 124)',
+    totalUnits: 466,
+    dongs: '101~110, 201~205동 (104,204 제외)',
+    builtYear: '1997'
+  }
 ];
 
 const HEADERS = {
   'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/134.0.0.0 Safari/537.36',
-  'Accept': 'application/json, text/plain, */*',
-  'Accept-Language': 'ko-KR,ko;q=0.9,en-US;q=0.8,en;q=0.7',
-  'Referer': 'https://fin.land.naver.com/map',
-  'Origin': 'https://fin.land.naver.com',
-  'sec-ch-ua': '"Chromium";v="134", "Google Chrome";v="134", "Not:A-Brand";v="99"',
-  'sec-ch-ua-mobile': '?0',
-  'sec-ch-ua-platform': '"Windows"',
-  'sec-fetch-dest': 'empty',
-  'sec-fetch-mode': 'cors',
-  'sec-fetch-site': 'same-origin'
+  'Accept': 'application/json',
+  'Referer': 'https://hogangnono.com/'
 };
+
+// tradeType: 0=매매, 1=전세, 2=월세
+const TRADE_TYPES = [
+  { code: 0, name: '매매' },
+  { code: 1, name: '전세' },
+  { code: 2, name: '월세' }
+];
 
 function log(msg) {
   console.log(`[${new Date().toISOString()}] ${msg}`);
@@ -40,219 +57,188 @@ function sleep(ms) {
   return new Promise(r => setTimeout(r, ms));
 }
 
-// ─── 쿠키 관리 ──────────────────────────────────────────
-let cookies = '';
-
-async function initSession() {
-  log('세션 초기화...');
+async function apiFetch(endpoint) {
+  const url = `${API_BASE}${endpoint}`;
   try {
-    const res = await fetch(BASE_URL, {
-      headers: { 'User-Agent': HEADERS['User-Agent'] },
-      redirect: 'follow'
-    });
-    
-    // Set-Cookie 헤더에서 쿠키 추출
-    const setCookies = res.headers.getSetCookie?.() || [];
-    cookies = setCookies.map(c => c.split(';')[0]).join('; ');
-    log(`세션 쿠키: ${cookies ? cookies.substring(0, 80) + '...' : '없음'}`);
-    log(`세션 응답: ${res.status} → ${res.url}`);
-    return true;
+    const res = await fetch(url, { headers: HEADERS, signal: AbortSignal.timeout(10000) });
+    if (!res.ok) {
+      log(`  ⚠ ${endpoint} → ${res.status}`);
+      return null;
+    }
+    const data = await res.json();
+    if (data.status === 'error') {
+      log(`  ⚠ ${endpoint} → ${data.message}`);
+      return null;
+    }
+    return data.data || data;
   } catch (err) {
-    log(`세션 초기화 실패: ${err.message}`);
-    return false;
-  }
-}
-
-// ─── API 호출 ───────────────────────────────────────────
-async function apiGet(endpoint) {
-  const url = `${BASE_URL}${endpoint}`;
-  try {
-    const res = await fetch(url, {
-      headers: { ...HEADERS, Cookie: cookies }
-    });
-    log(`  GET ${endpoint} → ${res.status}`);
-    if (!res.ok) return null;
-    return await res.json();
-  } catch (err) {
-    log(`  GET ${endpoint} → 에러: ${err.message}`);
+    log(`  ✗ ${endpoint} → ${err.message}`);
     return null;
   }
 }
 
-async function apiPost(endpoint, body) {
-  const url = `${BASE_URL}${endpoint}`;
-  try {
-    const res = await fetch(url, {
-      method: 'POST',
-      headers: { ...HEADERS, Cookie: cookies, 'Content-Type': 'application/json' },
-      body: JSON.stringify(body)
-    });
-    log(`  POST ${endpoint} → ${res.status}`);
-    if (!res.ok) return null;
-    return await res.json();
-  } catch (err) {
-    log(`  POST ${endpoint} → 에러: ${err.message}`);
-    return null;
-  }
-}
+// ─── 실거래가 수집 ──────────────────────────────────────
+async function getTrades(hash, tradeType) {
+  const data = await apiFetch(`/api/v2/apts/${hash}/trade-real?tradeType=${tradeType}&areaNo=0`);
+  if (!data?.data) return [];
 
-// ─── 단지 정보 조회 (엔드포인트 탐색) ──────────────────
-async function getComplexDetail(complexNumber) {
-  log(`단지 상세 조회: ${complexNumber}`);
-  
-  const endpoints = [
-    `/front-api/v1/complex/overview?complexNumber=${complexNumber}`,
-    `/front-api/v1/complex/detail?complexNumber=${complexNumber}`,
-    `/front-api/v1/complex/complexDetail?complexNumber=${complexNumber}`,
-    `/front-api/v1/complex/info?complexNumber=${complexNumber}`,
-    `/front-api/v1/complex/${complexNumber}`
-  ];
-
-  for (const ep of endpoints) {
-    const data = await apiGet(ep);
-    if (data && !data.error && !data.detailCode) {
-      log(`  ✅ 단지 상세 성공: ${ep}`);
-      return data;
-    }
-    await sleep(300);
-  }
-  return null;
-}
-
-// ─── 매물 목록 조회 (엔드포인트 탐색) ──────────────────
-async function getArticles(complexNumber) {
-  log(`매물 목록 조회: ${complexNumber}`);
-
-  const endpoints = [
-    `/front-api/v1/article/list?complexNumber=${complexNumber}&tradeType=&page=0&size=50`,
-    `/front-api/v1/article/articleList?complexNumber=${complexNumber}&page=0&size=50`,
-    `/front-api/v1/article/complexArticles?complexNumber=${complexNumber}&page=0&size=50`,
-    `/front-api/v1/article/articles?complexNumber=${complexNumber}&realEstateType=APT&page=0&size=50`,
-    `/front-api/v1/complex/${complexNumber}/articles?page=0&size=50`
-  ];
-
-  for (const ep of endpoints) {
-    const data = await apiGet(ep);
-    if (data && !data.error && !data.detailCode) {
-      log(`  ✅ 매물 목록 성공: ${ep}`);
-      return parseArticles(data);
-    }
-    await sleep(300);
-  }
-
-  // POST 방식도 시도
-  const postEndpoints = [
-    { ep: '/front-api/v1/article/list', body: { complexNumber, page: 0, size: 50 } },
-    { ep: '/front-api/v1/article/complexArticles', body: { complexNumber, page: 0, size: 50 } }
-  ];
-
-  for (const { ep, body } of postEndpoints) {
-    const data = await apiPost(ep, body);
-    if (data && !data.error && !data.detailCode) {
-      log(`  ✅ 매물 목록 성공 (POST): ${ep}`);
-      return parseArticles(data);
-    }
-    await sleep(300);
-  }
-
-  return [];
-}
-
-// ─── 매물 데이터 파싱 ───────────────────────────────────
-function parseArticles(data) {
-  // 응답 구조 탐색 — 구조를 모르므로 여러 패턴
-  const articles = data.articles || data.articleList || data.result?.articles || 
-                   data.data?.articles || data.list || data.body?.articles ||
-                   (Array.isArray(data) ? data : []);
-
-  if (!Array.isArray(articles)) {
-    log(`  매물 파싱 실패 — 응답 키: ${Object.keys(data).join(', ')}`);
-    // 한 단계 더 깊이 탐색
-    for (const key of Object.keys(data)) {
-      const val = data[key];
-      if (Array.isArray(val) && val.length > 0) {
-        log(`  발견된 배열 키: ${key} (${val.length}개)`);
-        return mapArticles(val);
-      }
-      if (val && typeof val === 'object' && !Array.isArray(val)) {
-        for (const subkey of Object.keys(val)) {
-          if (Array.isArray(val[subkey]) && val[subkey].length > 0) {
-            log(`  발견된 배열 키: ${key}.${subkey} (${val[subkey].length}개)`);
-            return mapArticles(val[subkey]);
-          }
-        }
-      }
-    }
-    return [];
-  }
-
-  return mapArticles(articles);
-}
-
-function mapArticles(articles) {
-  return articles.map(a => ({
-    articleId: a.articleNumber || a.articleId || a.id || '',
-    tradeType: a.tradeTypeName || a.tradeType || '',
-    price: a.dealOrWarrantPrc || a.price || a.formattedPrice || '',
-    deposit: a.warrantPrc || a.deposit || '',
-    monthlyRent: a.rentPrc || a.monthlyRent || '',
-    area: a.exclusiveArea || a.area || '',
-    supplyArea: a.supplyArea || '',
-    pyeong: a.exclusivePyeong || a.pyeongName || a.pyeong || '',
-    floor: a.floorInfo || a.floor || '',
-    direction: a.directionName || a.direction || '',
-    description: a.articleFeatureDesc || a.description || a.articleDesc || '',
-    confirmDate: a.articleConfirmYmd || a.confirmDate || '',
-    realtor: a.realtorName || a.agentName || ''
+  return data.data.map(t => ({
+    id: t.id,
+    tradeType: TRADE_TYPES.find(tt => tt.code === tradeType)?.name || '',
+    price: t.price || 0,          // 매매가 (만원)
+    deposit: t.deposit || 0,      // 보증금 (만원)
+    rent: t.rent || 0,            // 월세 (만원)
+    floor: t.floor,
+    dong: t.dong || '',
+    areaType: t.areaType || '',   // 평형 (ex: "74")
+    date: t.date,
+    dateAdded: t.dateAdded,
+    isCancelled: t.isCancelled || false,
+    useRenewal: t.useRenewal || 0,
+    method: t.method || ''
   }));
+}
+
+// ─── 지역 시세 비교 ─────────────────────────────────────
+async function getRegionRange(hash) {
+  const data = await apiFetch(`/api/apt/regionRange?apt=${hash}&areaNo=0`);
+  return data || null;
+}
+
+// ─── 매물 현황 (호갱노노에 등록된 매물) ────────────────
+async function getItems(hash) {
+  const data = await apiFetch(`/api/v2/apts/${hash}/items`);
+  return data || { aptItems: [], aptItemTotalCount: 0 };
+}
+
+async function getItemSummary(hash) {
+  const data = await apiFetch(`/api/v2/apts/${hash}/item-summary`);
+  return data || { areaItemSummaries: [], tradeCount: 0, depositCount: 0, rentCount: 0 };
+}
+
+// ─── 가격 포맷팅 ────────────────────────────────────────
+function formatPrice(manwon) {
+  if (!manwon || manwon === 0) return '';
+  const eok = Math.floor(manwon / 10000);
+  const rest = manwon % 10000;
+  if (eok > 0 && rest > 0) return `${eok}억 ${rest.toLocaleString()}`;
+  if (eok > 0) return `${eok}억`;
+  return `${manwon.toLocaleString()}만`;
 }
 
 // ─── 메인 ───────────────────────────────────────────────
 async function main() {
-  log('크롤러 v2 시작 (HTTP 직접 호출)');
-
-  await initSession();
+  log('크롤러 v3 시작 (호갱노노 API)');
 
   const results = [];
 
-  for (const target of TARGET_COMPLEXES) {
-    log(`\n━━━ ${target.keyword} (${target.complexNumber}) ━━━`);
-    
-    const detail = await getComplexDetail(target.complexNumber);
-    await sleep(500);
-    const articles = await getArticles(target.complexNumber);
-    
-    const saleCount = articles.filter(a => a.tradeType.includes('매매')).length;
-    const jeonseCount = articles.filter(a => a.tradeType.includes('전세')).length;
-    const monthlyCount = articles.filter(a => a.tradeType.includes('월세')).length;
+  for (const complex of COMPLEXES) {
+    log(`\n━━━ ${complex.name} (${complex.hash}) ━━━`);
+
+    // 실거래가 수집 (매매/전세/월세)
+    const allTrades = [];
+    for (const tt of TRADE_TYPES) {
+      log(`  ${tt.name} 실거래가 조회...`);
+      const trades = await getTrades(complex.hash, tt.code);
+      log(`  ✓ ${tt.name}: ${trades.length}건`);
+      allTrades.push(...trades);
+      await sleep(500);
+    }
+
+    // 지역 시세 비교
+    log('  지역 시세 조회...');
+    const regionRange = await getRegionRange(complex.hash);
+    await sleep(300);
+
+    // 매물 현황
+    log('  매물 현황 조회...');
+    const items = await getItems(complex.hash);
+    const itemSummary = await getItemSummary(complex.hash);
+    await sleep(300);
+
+    // 가격 통계 계산
+    const saleTrades = allTrades.filter(t => t.tradeType === '매매' && !t.isCancelled);
+    const jeonseTrads = allTrades.filter(t => t.tradeType === '전세' && !t.isCancelled);
+    const rentTrades = allTrades.filter(t => t.tradeType === '월세' && !t.isCancelled);
+
+    const latestSale = saleTrades[0];
+    const latestJeonse = jeonseTrads[0];
 
     results.push({
-      name: detail?.complexName || target.keyword,
-      alias: target.alias,
-      complexNumber: target.complexNumber,
-      address: detail?.address || detail?.roadAddress || `성남시 분당구 정자동`,
-      totalUnits: detail?.totalHouseholdCount || detail?.householdCount || null,
-      builtYear: detail?.useApprovalYearMonth || detail?.approvalDate || null,
-      detail: detail ? {
-        floorAreaRatio: detail.floorAreaRatio,
-        buildingCoverageRatio: detail.buildingCoverageRatio,
-        parkingCount: detail.parkingCount || detail.totalParkingCount,
-        heatingType: detail.heatingType || detail.heatingMethodName
+      name: complex.name,
+      alias: complex.alias,
+      hash: complex.hash,
+      naverComplexNo: complex.naverComplexNo,
+      address: complex.address,
+      totalUnits: complex.totalUnits,
+      dongs: complex.dongs,
+      builtYear: complex.builtYear,
+      
+      // 최근 실거래 요약
+      latestTrades: {
+        sale: latestSale ? {
+          price: formatPrice(latestSale.price),
+          priceRaw: latestSale.price,
+          floor: latestSale.floor,
+          area: latestSale.areaType,
+          date: latestSale.date,
+          dong: latestSale.dong
+        } : null,
+        jeonse: latestJeonse ? {
+          price: formatPrice(latestJeonse.deposit),
+          priceRaw: latestJeonse.deposit,
+          floor: latestJeonse.floor,
+          area: latestJeonse.areaType,
+          date: latestJeonse.date
+        } : null
+      },
+
+      // 전체 실거래 내역
+      trades: allTrades.map(t => ({
+        ...t,
+        priceFormatted: t.tradeType === '매매' ? formatPrice(t.price) :
+                        t.tradeType === '전세' ? formatPrice(t.deposit) :
+                        `${formatPrice(t.deposit)}/${t.rent}만`,
+        dateFormatted: t.date ? new Date(t.date).toISOString().split('T')[0] : ''
+      })),
+
+      tradeCount: {
+        sale: saleTrades.length,
+        jeonse: jeonseTrads.length,
+        monthly: rentTrades.length
+      },
+
+      // 매물 현황
+      items: items.aptItems || [],
+      itemCount: items.aptItemTotalCount || 0,
+      itemSummary: {
+        trade: itemSummary.tradeCount || 0,
+        deposit: itemSummary.depositCount || 0,
+        rent: itemSummary.rentCount || 0
+      },
+
+      // 지역 비교
+      regionRange: regionRange ? {
+        dong: regionRange.dong,
+        sigungu: regionRange.sigungu
       } : null,
-      articles,
-      articleCount: { sale: saleCount, jeonse: jeonseCount, monthly: monthlyCount },
+
       scrapedAt: new Date().toISOString()
     });
 
-    log(`✅ ${target.keyword}: 상세=${detail ? 'O' : 'X'}, 매물=${articles.length}개 (매매${saleCount}/전세${jeonseCount}/월세${monthlyCount})`);
+    log(`✅ ${complex.alias}: 실거래 ${allTrades.length}건 (매매${saleTrades.length}/전세${jeonseTrads.length}/월세${rentTrades.length})`);
     await sleep(1000);
   }
 
-  const output = { updatedAt: new Date().toISOString(), complexes: results };
+  const output = {
+    updatedAt: new Date().toISOString(),
+    source: 'hogangnono',
+    complexes: results
+  };
 
   fs.mkdirSync(path.dirname(DATA_PATH), { recursive: true });
   fs.writeFileSync(DATA_PATH, JSON.stringify(output, null, 2), 'utf-8');
-  log(`\n데이터 저장: ${DATA_PATH}`);
+  log(`\n데이터 저장: ${DATA_PATH} (${(JSON.stringify(output).length / 1024).toFixed(1)}KB)`);
   log('크롤러 종료');
 }
 

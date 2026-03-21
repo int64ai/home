@@ -3,550 +3,226 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>아파트 매물 트래커</title>
+  <title>분당 정자동 아파트 실거래</title>
   <link rel="preconnect" href="https://cdn.jsdelivr.net">
   <link href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css" rel="stylesheet">
   <style>
-    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
-
-    :root {
-      --bg: #f8f8f6;
-      --surface: #ffffff;
-      --border: #e8e6e1;
-      --text-primary: #1a1a18;
-      --text-secondary: #6b6960;
-      --text-tertiary: #9b9689;
-      --accent: #2d5a27;
-      --accent-light: #e8f0e6;
-      --sale: #c73e1d;
-      --jeonse: #2563eb;
-      --monthly: #7c3aed;
-      --radius: 12px;
-      --shadow: 0 1px 3px rgba(0,0,0,0.04), 0 4px 12px rgba(0,0,0,0.03);
+    *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+    :root{
+      --bg:#f8f8f6;--surface:#fff;--border:#e8e6e1;
+      --text-1:#1a1a18;--text-2:#6b6960;--text-3:#9b9689;
+      --sale:#c73e1d;--jeonse:#2563eb;--monthly:#7c3aed;
+      --accent:#2d5a27;--radius:12px;
+      --shadow:0 1px 3px rgba(0,0,0,.04),0 4px 12px rgba(0,0,0,.03);
     }
-
-    html { font-size: 15px; }
-
-    body {
-      font-family: 'Pretendard Variable', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
-      background: var(--bg);
-      color: var(--text-primary);
-      line-height: 1.6;
-      min-height: 100vh;
-      -webkit-font-smoothing: antialiased;
-    }
-
-    /* ─── Header ────────────────────────────── */
-    .header {
-      padding: 3rem 0 2rem;
-      text-align: center;
-    }
-
-    .header h1 {
-      font-size: 1.6rem;
-      font-weight: 700;
-      letter-spacing: -0.02em;
-      margin-bottom: 0.3rem;
-    }
-
-    .header .subtitle {
-      color: var(--text-secondary);
-      font-size: 0.9rem;
-      font-weight: 400;
-    }
-
-    .status-bar {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 0.5rem;
-      margin-top: 1rem;
-      font-size: 0.8rem;
-      color: var(--text-tertiary);
-    }
-
-    .status-dot {
-      width: 6px; height: 6px;
-      border-radius: 50%;
-      background: #22c55e;
-      animation: pulse 2s ease-in-out infinite;
-    }
-
-    @keyframes pulse {
-      0%, 100% { opacity: 1; }
-      50% { opacity: 0.4; }
-    }
-
-    .status-dot.offline { background: #ef4444; animation: none; }
-
-    /* ─── Container ─────────────────────────── */
-    .container {
-      max-width: 960px;
-      margin: 0 auto;
-      padding: 0 1.5rem 4rem;
-    }
-
-    /* ─── Summary Cards ─────────────────────── */
-    .summary-row {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-      gap: 1rem;
-      margin-bottom: 2rem;
-    }
-
-    .summary-card {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      padding: 1.2rem 1.4rem;
-      box-shadow: var(--shadow);
-    }
-
-    .summary-card .label {
-      font-size: 0.75rem;
-      font-weight: 500;
-      color: var(--text-tertiary);
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-      margin-bottom: 0.3rem;
-    }
-
-    .summary-card .value {
-      font-size: 1.8rem;
-      font-weight: 700;
-      letter-spacing: -0.03em;
-    }
-
-    .summary-card .sub {
-      font-size: 0.78rem;
-      color: var(--text-secondary);
-      margin-top: 0.15rem;
-    }
-
-    /* ─── Complex Section ──────────────────── */
-    .complex-section {
-      margin-bottom: 2.5rem;
-    }
-
-    .complex-header {
-      display: flex;
-      align-items: baseline;
-      justify-content: space-between;
-      margin-bottom: 1rem;
-      padding-bottom: 0.8rem;
-      border-bottom: 2px solid var(--text-primary);
-    }
-
-    .complex-name {
-      font-size: 1.3rem;
-      font-weight: 700;
-      letter-spacing: -0.01em;
-    }
-
-    .complex-meta {
-      font-size: 0.8rem;
-      color: var(--text-secondary);
-    }
-
-    .complex-info {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 0.6rem 1.5rem;
-      margin-bottom: 1.2rem;
-      font-size: 0.82rem;
-      color: var(--text-secondary);
-    }
-
-    .complex-info span::before {
-      content: '';
-      display: inline-block;
-      width: 3px; height: 3px;
-      border-radius: 50%;
-      background: var(--text-tertiary);
-      margin-right: 0.4rem;
-      vertical-align: middle;
-      position: relative;
-      top: -1px;
-    }
-
-    /* ─── Trade Type Badges ─────────────────── */
-    .badge-row {
-      display: flex;
-      gap: 0.5rem;
-      margin-bottom: 1rem;
-    }
-
-    .badge {
-      display: inline-flex;
-      align-items: center;
-      gap: 0.3rem;
-      padding: 0.3rem 0.8rem;
-      border-radius: 100px;
-      font-size: 0.75rem;
-      font-weight: 600;
-      cursor: pointer;
-      border: 1.5px solid transparent;
-      transition: all 0.15s ease;
-    }
-
-    .badge.sale { background: #fef2f2; color: var(--sale); border-color: #fecaca; }
-    .badge.jeonse { background: #eff6ff; color: var(--jeonse); border-color: #bfdbfe; }
-    .badge.monthly { background: #f5f3ff; color: var(--monthly); border-color: #ddd6fe; }
-    .badge.active { border-width: 2px; }
-    .badge .count { font-weight: 800; }
-
-    /* ─── Article Table ─────────────────────── */
-    .table-wrap {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      overflow: hidden;
-      box-shadow: var(--shadow);
-    }
-
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      font-size: 0.82rem;
-    }
-
-    thead {
-      background: #fafaf8;
-      border-bottom: 1px solid var(--border);
-    }
-
-    th {
-      padding: 0.7rem 1rem;
-      text-align: left;
-      font-weight: 600;
-      font-size: 0.72rem;
-      color: var(--text-tertiary);
-      text-transform: uppercase;
-      letter-spacing: 0.04em;
-      white-space: nowrap;
-    }
-
-    td {
-      padding: 0.75rem 1rem;
-      border-bottom: 1px solid #f3f2ef;
-      vertical-align: top;
-    }
-
-    tr:last-child td { border-bottom: none; }
-
-    tr:hover td { background: #fdfcfa; }
-
-    .price-cell {
-      font-weight: 700;
-      font-variant-numeric: tabular-nums;
-      letter-spacing: -0.01em;
-    }
-
-    .price-cell.sale { color: var(--sale); }
-    .price-cell.jeonse { color: var(--jeonse); }
-    .price-cell.monthly { color: var(--monthly); }
-
-    .type-tag {
-      display: inline-block;
-      padding: 0.15rem 0.45rem;
-      border-radius: 4px;
-      font-size: 0.7rem;
-      font-weight: 600;
-    }
-
-    .type-tag.sale { background: #fef2f2; color: var(--sale); }
-    .type-tag.jeonse { background: #eff6ff; color: var(--jeonse); }
-    .type-tag.monthly { background: #f5f3ff; color: var(--monthly); }
-
-    .desc-cell {
-      color: var(--text-secondary);
-      font-size: 0.78rem;
-      max-width: 200px;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
-    }
-
-    /* ─── Empty / Loading ──────────────────── */
-    .empty-state {
-      text-align: center;
-      padding: 4rem 2rem;
-      color: var(--text-tertiary);
-    }
-
-    .empty-state .icon { font-size: 2.5rem; margin-bottom: 1rem; }
-    .empty-state h3 { font-size: 1.1rem; font-weight: 600; color: var(--text-secondary); margin-bottom: 0.3rem; }
-    .empty-state p { font-size: 0.85rem; }
-
-    .loading {
-      text-align: center;
-      padding: 3rem;
-      color: var(--text-tertiary);
-    }
-
-    .loading .spinner {
-      width: 24px; height: 24px;
-      border: 2.5px solid var(--border);
-      border-top-color: var(--accent);
-      border-radius: 50%;
-      animation: spin 0.8s linear infinite;
-      margin: 0 auto 1rem;
-    }
-
-    @keyframes spin { to { transform: rotate(360deg); } }
-
-    /* ─── Footer ────────────────────────────── */
-    .footer {
-      text-align: center;
-      padding: 2rem;
-      font-size: 0.75rem;
-      color: var(--text-tertiary);
-      border-top: 1px solid var(--border);
-    }
-
-    .footer a {
-      color: var(--text-secondary);
-      text-decoration: none;
-    }
-
-    .footer a:hover { text-decoration: underline; }
-
-    /* ─── Responsive ────────────────────────── */
-    @media (max-width: 640px) {
-      html { font-size: 14px; }
-      .header { padding: 2rem 0 1.5rem; }
-      .container { padding: 0 1rem 3rem; }
-      .complex-header { flex-direction: column; gap: 0.3rem; }
-      .table-wrap { overflow-x: auto; }
-      table { min-width: 600px; }
-    }
+    html{font-size:15px}
+    body{font-family:'Pretendard Variable',-apple-system,system-ui,sans-serif;background:var(--bg);color:var(--text-1);line-height:1.6;-webkit-font-smoothing:antialiased}
+    .header{padding:2.5rem 0 1.5rem;text-align:center}
+    .header h1{font-size:1.5rem;font-weight:700;letter-spacing:-.02em}
+    .header .sub{color:var(--text-2);font-size:.85rem;margin-top:.2rem}
+    .status{display:flex;align-items:center;justify-content:center;gap:.4rem;margin-top:.8rem;font-size:.78rem;color:var(--text-3)}
+    .dot{width:6px;height:6px;border-radius:50%;background:#22c55e;animation:pulse 2s ease-in-out infinite}
+    .dot.off{background:#ef4444;animation:none}
+    @keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+    .container{max-width:960px;margin:0 auto;padding:0 1.5rem 4rem}
+    .cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:.8rem;margin-bottom:2rem}
+    .card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:1rem 1.2rem;box-shadow:var(--shadow)}
+    .card .lbl{font-size:.7rem;font-weight:500;color:var(--text-3);text-transform:uppercase;letter-spacing:.04em;margin-bottom:.2rem}
+    .card .val{font-size:1.6rem;font-weight:700;letter-spacing:-.02em}
+    .card .detail{font-size:.75rem;color:var(--text-2);margin-top:.1rem}
+    .section{margin-bottom:2.5rem}
+    .section-head{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:.8rem;padding-bottom:.6rem;border-bottom:2px solid var(--text-1)}
+    .section-title{font-size:1.2rem;font-weight:700;letter-spacing:-.01em}
+    .section-meta{font-size:.78rem;color:var(--text-2)}
+    .info-row{display:flex;flex-wrap:wrap;gap:.4rem 1.2rem;margin-bottom:1rem;font-size:.8rem;color:var(--text-2)}
+    .info-row span::before{content:'';display:inline-block;width:3px;height:3px;border-radius:50%;background:var(--text-3);margin-right:.35rem;vertical-align:middle;position:relative;top:-1px}
+    .latest-box{display:grid;grid-template-columns:1fr 1fr;gap:.8rem;margin-bottom:1.2rem}
+    .latest-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:1rem;box-shadow:var(--shadow)}
+    .latest-card .type{font-size:.7rem;font-weight:600;margin-bottom:.3rem}
+    .latest-card .type.sale{color:var(--sale)}.latest-card .type.jeonse{color:var(--jeonse)}
+    .latest-card .price{font-size:1.3rem;font-weight:700;letter-spacing:-.02em}
+    .latest-card .price.sale{color:var(--sale)}.latest-card .price.jeonse{color:var(--jeonse)}
+    .latest-card .meta{font-size:.72rem;color:var(--text-3);margin-top:.2rem}
+    .tabs{display:flex;gap:.4rem;margin-bottom:.8rem}
+    .tab{padding:.35rem .8rem;border-radius:100px;font-size:.75rem;font-weight:600;cursor:pointer;border:1.5px solid var(--border);background:var(--surface);color:var(--text-2);transition:all .15s}
+    .tab.active{border-color:var(--text-1);background:var(--text-1);color:#fff}
+    .tab .cnt{font-weight:800}
+    .tbl-wrap{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;box-shadow:var(--shadow)}
+    table{width:100%;border-collapse:collapse;font-size:.8rem}
+    thead{background:#fafaf8;border-bottom:1px solid var(--border)}
+    th{padding:.6rem .8rem;text-align:left;font-weight:600;font-size:.7rem;color:var(--text-3);text-transform:uppercase;letter-spacing:.04em;white-space:nowrap}
+    td{padding:.65rem .8rem;border-bottom:1px solid #f3f2ef;vertical-align:middle}
+    tr:last-child td{border-bottom:none}
+    tr:hover td{background:#fdfcfa}
+    .tag{display:inline-block;padding:.12rem .4rem;border-radius:4px;font-size:.68rem;font-weight:600}
+    .tag.sale{background:#fef2f2;color:var(--sale)}.tag.jeonse{background:#eff6ff;color:var(--jeonse)}.tag.monthly{background:#f5f3ff;color:var(--monthly)}
+    .price-c{font-weight:700;font-variant-numeric:tabular-nums}
+    .price-c.sale{color:var(--sale)}.price-c.jeonse{color:var(--jeonse)}.price-c.monthly{color:var(--monthly)}
+    .cancelled{text-decoration:line-through;opacity:.5}
+    .empty{text-align:center;padding:3rem;color:var(--text-3)}
+    .footer{text-align:center;padding:2rem;font-size:.72rem;color:var(--text-3);border-top:1px solid var(--border)}
+    .footer a{color:var(--text-2);text-decoration:none}
+    @media(max-width:640px){html{font-size:14px}.container{padding:0 1rem 3rem}.latest-box{grid-template-columns:1fr}.tbl-wrap{overflow-x:auto}table{min-width:550px}}
   </style>
 </head>
 <body>
-
   <div class="header">
-    <h1>아파트 매물 트래커</h1>
-    <p class="subtitle">상록마을우성 · 상록마을라이프 (분당구 정자동) — 실시간 매물 현황</p>
-    <div class="status-bar">
-      <span class="status-dot" id="statusDot"></span>
-      <span id="statusText">로딩 중...</span>
-    </div>
+    <h1>분당 정자동 아파트 실거래</h1>
+    <p class="sub">상록마을우성 · 상록마을라이프</p>
+    <div class="status"><span class="dot" id="dot"></span><span id="st">로딩 중...</span></div>
   </div>
-
   <div class="container">
-    <div id="summaryRow" class="summary-row"></div>
-    <div id="content">
-      <div class="loading">
-        <div class="spinner"></div>
-        <p>데이터 불러오는 중...</p>
-      </div>
-    </div>
+    <div class="cards" id="cards"></div>
+    <div id="content"><div class="empty">데이터 로딩 중...</div></div>
   </div>
-
   <div class="footer">
-    출처: <a href="https://fin.land.naver.com" target="_blank" rel="noopener">네이버페이 부동산</a>
-    · 30분마다 자동 업데이트
-    · 참고용 데이터 — 정확성 미보증
+    출처: <a href="https://hogangnono.com" target="_blank">호갱노노</a> (실거래가 공공데이터 기반)
+    · 30분마다 자동 업데이트 · 참고용
   </div>
-
   <script>
-    const DATA_URL = './data.json';
-    const REFRESH_INTERVAL = 5 * 60 * 1000; // 5분마다 JSON 다시 확인
-
-    // ─── 유틸 ────────────────────────────────
-    function timeAgo(dateStr) {
-      if (!dateStr) return '—';
-      const diff = Date.now() - new Date(dateStr).getTime();
-      const min = Math.floor(diff / 60000);
-      if (min < 1) return '방금 전';
-      if (min < 60) return `${min}분 전`;
-      const hr = Math.floor(min / 60);
-      if (hr < 24) return `${hr}시간 전`;
-      const day = Math.floor(hr / 24);
-      return `${day}일 전`;
+    const $ = s => document.querySelector(s);
+    const h = s => { const d = document.createElement('div'); d.textContent = s || ''; return d.innerHTML; };
+    
+    function timeAgo(d) {
+      if (!d) return '—';
+      const m = Math.floor((Date.now() - new Date(d).getTime()) / 60000);
+      if (m < 1) return '방금 전';
+      if (m < 60) return m + '분 전';
+      const hr = Math.floor(m / 60);
+      if (hr < 24) return hr + '시간 전';
+      return Math.floor(hr / 24) + '일 전';
     }
 
-    function formatDate(dateStr) {
-      if (!dateStr) return '—';
-      const d = new Date(dateStr);
-      const kst = new Date(d.getTime() + 9 * 60 * 60 * 1000);
-      return `${kst.getFullYear()}.${String(kst.getMonth()+1).padStart(2,'0')}.${String(kst.getDate()).padStart(2,'0')} ${String(kst.getHours()).padStart(2,'0')}:${String(kst.getMinutes()).padStart(2,'0')} KST`;
+    function fmtDate(d) {
+      if (!d) return '—';
+      return new Date(d).toISOString().split('T')[0].replace(/-/g, '.');
     }
 
-    function tradeClass(type) {
-      if (!type) return '';
-      if (type.includes('매매')) return 'sale';
-      if (type.includes('전세')) return 'jeonse';
-      if (type.includes('월세')) return 'monthly';
-      return '';
+    function fmtKST(d) {
+      if (!d) return '—';
+      const dt = new Date(new Date(d).getTime() + 9*3600000);
+      return `${dt.getFullYear()}.${String(dt.getMonth()+1).padStart(2,'0')}.${String(dt.getDate()).padStart(2,'0')} ${String(dt.getHours()).padStart(2,'0')}:${String(dt.getMinutes()).padStart(2,'0')} KST`;
     }
 
-    function escHtml(s) {
-      const d = document.createElement('div');
-      d.textContent = s || '';
-      return d.innerHTML;
+    function cls(t) {
+      if (!t) return '';
+      if (t.includes('매매')) return 'sale';
+      if (t.includes('전세')) return 'jeonse';
+      return 'monthly';
     }
 
-    // ─── 렌더링 ──────────────────────────────
     function render(data) {
-      // Status
-      const dot = document.getElementById('statusDot');
-      const statusText = document.getElementById('statusText');
-
       if (!data.updatedAt) {
-        dot.classList.add('offline');
-        statusText.textContent = '아직 데이터 없음 — 첫 크롤링 대기 중';
-        document.getElementById('content').innerHTML = `
-          <div class="empty-state">
-            <div class="icon">📡</div>
-            <h3>데이터 수집 대기 중</h3>
-            <p>GitHub Actions 크롤러가 아직 실행되지 않았습니다.<br>Actions 탭에서 수동으로 실행하거나 30분 후 자동 실행됩니다.</p>
-          </div>
-        `;
+        $('#dot').classList.add('off');
+        $('#st').textContent = '데이터 수집 대기 중';
+        $('#content').innerHTML = '<div class="empty">GitHub Actions가 아직 실행되지 않았습니다.</div>';
         return;
       }
 
-      dot.classList.remove('offline');
-      statusText.textContent = `마지막 업데이트: ${formatDate(data.updatedAt)} (${timeAgo(data.updatedAt)})`;
+      $('#dot').classList.remove('off');
+      $('#st').textContent = `${fmtKST(data.updatedAt)} (${timeAgo(data.updatedAt)})`;
 
-      const complexes = data.complexes || [];
+      const cx = data.complexes || [];
+      const totalTrades = cx.reduce((s, c) => s + (c.trades?.length || 0), 0);
+      const totalSale = cx.reduce((s, c) => s + (c.tradeCount?.sale || 0), 0);
+      const totalJeonse = cx.reduce((s, c) => s + (c.tradeCount?.jeonse || 0), 0);
 
-      // Summary row
-      const totalArticles = complexes.reduce((sum, c) => sum + (c.articles?.length || 0), 0);
-      const totalSale = complexes.reduce((sum, c) => sum + (c.articleCount?.sale || 0), 0);
-      const totalJeonse = complexes.reduce((sum, c) => sum + (c.articleCount?.jeonse || 0), 0);
-      const totalMonthly = complexes.reduce((sum, c) => sum + (c.articleCount?.monthly || 0), 0);
+      // 최근 매매가 (우성 기준)
+      const wooseong = cx.find(c => c.hash === '5dt68');
+      const latestPrice = wooseong?.latestTrades?.sale?.price || '—';
 
-      document.getElementById('summaryRow').innerHTML = `
-        <div class="summary-card">
-          <div class="label">총 매물</div>
-          <div class="value">${totalArticles}</div>
-          <div class="sub">${complexes.length}개 단지</div>
-        </div>
-        <div class="summary-card">
-          <div class="label" style="color:var(--sale)">매매</div>
-          <div class="value" style="color:var(--sale)">${totalSale}</div>
-        </div>
-        <div class="summary-card">
-          <div class="label" style="color:var(--jeonse)">전세</div>
-          <div class="value" style="color:var(--jeonse)">${totalJeonse}</div>
-        </div>
-        <div class="summary-card">
-          <div class="label" style="color:var(--monthly)">월세</div>
-          <div class="value" style="color:var(--monthly)">${totalMonthly}</div>
-        </div>
+      $('#cards').innerHTML = `
+        <div class="card"><div class="lbl">최근 실거래</div><div class="val">${totalTrades}</div><div class="detail">${cx.length}개 단지</div></div>
+        <div class="card"><div class="lbl" style="color:var(--sale)">매매</div><div class="val" style="color:var(--sale)">${totalSale}</div></div>
+        <div class="card"><div class="lbl" style="color:var(--jeonse)">전세</div><div class="val" style="color:var(--jeonse)">${totalJeonse}</div></div>
+        <div class="card"><div class="lbl">우성 최근 매매</div><div class="val" style="font-size:1.2rem">${h(latestPrice)}</div><div class="detail">${wooseong?.latestTrades?.sale ? h(wooseong.latestTrades.sale.area) + '평 · ' + fmtDate(wooseong.latestTrades.sale.date) : ''}</div></div>
       `;
 
-      // Complex sections
-      if (complexes.length === 0 || complexes.every(c => c.error)) {
-        document.getElementById('content').innerHTML = `
-          <div class="empty-state">
-            <div class="icon">🏗️</div>
-            <h3>데이터 수집 실패</h3>
-            <p>네이버 부동산 접속에 문제가 있습니다. 잠시 후 자동 재시도됩니다.</p>
-          </div>
-        `;
-        return;
-      }
+      $('#content').innerHTML = cx.map(c => renderComplex(c)).join('');
 
-      document.getElementById('content').innerHTML = complexes.map(c => renderComplex(c)).join('');
+      // Tab switching
+      document.querySelectorAll('.tabs').forEach(tabs => {
+        tabs.querySelectorAll('.tab').forEach(tab => {
+          tab.onclick = () => {
+            const section = tab.closest('.section');
+            section.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            tab.classList.add('active');
+            const type = tab.dataset.type;
+            section.querySelectorAll('tbody tr').forEach(tr => {
+              tr.style.display = (!type || type === 'all' || tr.dataset.type === type) ? '' : 'none';
+            });
+          };
+        });
+      });
     }
 
-    function renderComplex(complex) {
-      if (complex.error) {
-        return `
-          <div class="complex-section">
-            <div class="complex-header">
-              <span class="complex-name">${escHtml(complex.name)}</span>
-              <span class="complex-meta" style="color:var(--sale)">수집 실패</span>
-            </div>
-          </div>
-        `;
-      }
-
-      const articles = complex.articles || [];
-      const info = [];
-      if (complex.address) info.push(complex.address);
-      if (complex.totalUnits) info.push(`${complex.totalUnits}세대`);
-      if (complex.builtYear) info.push(`${complex.builtYear} 준공`);
-
-      const saleCount = complex.articleCount?.sale || 0;
-      const jeonseCount = complex.articleCount?.jeonse || 0;
-      const monthlyCount = complex.articleCount?.monthly || 0;
+    function renderComplex(c) {
+      const trades = c.trades || [];
+      const info = [c.address, c.totalUnits + '세대', c.dongs, c.builtYear + ' 준공'].filter(Boolean);
 
       return `
-        <div class="complex-section" data-complex="${escHtml(complex.name)}">
-          <div class="complex-header">
-            <span class="complex-name">${escHtml(complex.name)}</span>
-            <span class="complex-meta">${escHtml(complex.complexNumber ? `No.${complex.complexNumber}` : '')}</span>
+        <div class="section">
+          <div class="section-head">
+            <span class="section-title">${h(c.alias || c.name)}</span>
+            <span class="section-meta">${h(c.name)}</span>
           </div>
-          ${info.length ? `<div class="complex-info">${info.map(i => `<span>${escHtml(i)}</span>`).join('')}</div>` : ''}
-          <div class="badge-row">
-            <span class="badge sale"><span class="count">${saleCount}</span> 매매</span>
-            <span class="badge jeonse"><span class="count">${jeonseCount}</span> 전세</span>
-            <span class="badge monthly"><span class="count">${monthlyCount}</span> 월세</span>
+          <div class="info-row">${info.map(i => `<span>${h(i)}</span>`).join('')}</div>
+          <div class="latest-box">
+            ${c.latestTrades?.sale ? `
+              <div class="latest-card">
+                <div class="type sale">최근 매매</div>
+                <div class="price sale">${h(c.latestTrades.sale.price)}</div>
+                <div class="meta">${h(c.latestTrades.sale.area)}평 · ${c.latestTrades.sale.floor}층${c.latestTrades.sale.dong ? ' · ' + c.latestTrades.sale.dong + '동' : ''} · ${fmtDate(c.latestTrades.sale.date)}</div>
+              </div>
+            ` : '<div class="latest-card"><div class="type sale">최근 매매</div><div class="price">—</div></div>'}
+            ${c.latestTrades?.jeonse ? `
+              <div class="latest-card">
+                <div class="type jeonse">최근 전세</div>
+                <div class="price jeonse">${h(c.latestTrades.jeonse.price)}</div>
+                <div class="meta">${h(c.latestTrades.jeonse.area)}평 · ${c.latestTrades.jeonse.floor}층 · ${fmtDate(c.latestTrades.jeonse.date)}</div>
+              </div>
+            ` : '<div class="latest-card"><div class="type jeonse">최근 전세</div><div class="price">—</div></div>'}
           </div>
-          ${articles.length > 0 ? `
-            <div class="table-wrap">
-              <table>
-                <thead>
-                  <tr>
-                    <th>유형</th>
-                    <th>가격</th>
-                    <th>면적</th>
-                    <th>층</th>
-                    <th>방향</th>
-                    <th>설명</th>
-                    <th>확인일</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  ${articles.map(a => {
-                    const cls = tradeClass(a.tradeType);
-                    const priceText = a.tradeType?.includes('월세')
-                      ? `${a.deposit || ''}/${a.monthlyRent || ''}`
-                      : (a.price || '—');
-                    const areaPy = a.pyeong ? `${a.pyeong}평` : (a.area ? `${Number(a.area).toFixed(0)}㎡` : '—');
-
-                    return `<tr>
-                      <td><span class="type-tag ${cls}">${escHtml(a.tradeType || '—')}</span></td>
-                      <td class="price-cell ${cls}">${escHtml(priceText)}</td>
-                      <td>${escHtml(areaPy)}</td>
-                      <td>${escHtml(a.floor || '—')}</td>
-                      <td>${escHtml(a.direction || '—')}</td>
-                      <td class="desc-cell" title="${escHtml(a.description)}">${escHtml(a.description || '—')}</td>
-                      <td style="color:var(--text-tertiary);font-size:0.75rem">${escHtml(a.confirmDate || '—')}</td>
-                    </tr>`;
-                  }).join('')}
-                </tbody>
-              </table>
-            </div>
-          ` : `
-            <div class="empty-state" style="padding:2rem">
-              <p>현재 등록된 매물이 없습니다</p>
-            </div>
-          `}
+          <div class="tabs">
+            <div class="tab active" data-type="all">전체 <span class="cnt">${trades.length}</span></div>
+            <div class="tab" data-type="매매">매매 <span class="cnt">${c.tradeCount?.sale||0}</span></div>
+            <div class="tab" data-type="전세">전세 <span class="cnt">${c.tradeCount?.jeonse||0}</span></div>
+            <div class="tab" data-type="월세">월세 <span class="cnt">${c.tradeCount?.monthly||0}</span></div>
+          </div>
+          ${trades.length ? `
+            <div class="tbl-wrap"><table>
+              <thead><tr><th>유형</th><th>가격</th><th>평형</th><th>층</th><th>동</th><th>계약일</th><th>등록일</th></tr></thead>
+              <tbody>${trades.map(t => {
+                const c2 = cls(t.tradeType);
+                return `<tr data-type="${h(t.tradeType)}" class="${t.isCancelled?'cancelled':''}">
+                  <td><span class="tag ${c2}">${h(t.tradeType)}</span></td>
+                  <td class="price-c ${c2}">${h(t.priceFormatted)}</td>
+                  <td>${h(t.areaType)}평</td>
+                  <td>${t.floor||'—'}층</td>
+                  <td>${h(t.dong)||'—'}</td>
+                  <td style="font-size:.72rem;color:var(--text-3)">${h(t.dateFormatted)}</td>
+                  <td style="font-size:.72rem;color:var(--text-3)">${fmtDate(t.dateAdded)}</td>
+                </tr>`;
+              }).join('')}</tbody>
+            </table></div>
+          ` : '<div class="empty">실거래 내역 없음</div>'}
         </div>
       `;
     }
 
-    // ─── 데이터 로드 ─────────────────────────
-    async function loadData() {
+    async function load() {
       try {
-        const res = await fetch(DATA_URL + '?t=' + Date.now());
-        if (!res.ok) throw new Error(res.status);
-        const data = await res.json();
-        render(data);
-      } catch (err) {
-        console.error('데이터 로드 실패:', err);
-        document.getElementById('statusDot').classList.add('offline');
-        document.getElementById('statusText').textContent = '데이터 로드 실패';
+        const r = await fetch('./data.json?t=' + Date.now());
+        if (!r.ok) throw new Error(r.status);
+        render(await r.json());
+      } catch(e) {
+        $('#dot').classList.add('off');
+        $('#st').textContent = '로드 실패';
       }
     }
 
-    // ─── 초기화 ──────────────────────────────
-    loadData();
-    setInterval(loadData, REFRESH_INTERVAL);
+    load();
+    setInterval(load, 300000);
   </script>
 </body>
 </html>
