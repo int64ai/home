@@ -71,6 +71,9 @@
     tbody tr:last-child td{border-bottom:none}
     tbody tr{transition:background .1s}
     tbody tr:hover td{background:#fdfcfa}
+    th.col-area, td.col-area{min-width:96px}
+    th.col-dong, td.col-dong{min-width:86px}
+    th.col-date, td.col-date{white-space:nowrap}
 
     .tag{display:inline-block;padding:.15rem .5rem;border-radius:5px;font-size:.75rem;font-weight:700;line-height:1.4}
     .tag.sale{background:var(--sale-bg);color:var(--sale);border:1px solid var(--sale-border)}
@@ -114,7 +117,7 @@
       .container{padding:0 1rem 3rem}
       .header{padding:2rem 1rem 1.5rem}
       .tbl-wrap{border-radius:var(--radius-sm);overflow-x:auto;-webkit-overflow-scrolling:touch}
-      table{min-width:760px}
+      table{min-width:840px}
       .desc{max-width:none}
     }
 
@@ -265,13 +268,13 @@ function renderTable(arts) {
     <thead><tr>
       <th style="width:52px">유형</th>
       <th>가격</th>
-      <th>면적</th>
-      <th>동</th>
+      <th class="col-area">면적</th>
+      <th class="col-dong">동</th>
       <th>층</th>
       <th>향</th>
-      <th>등록</th>
       <th>특징</th>
       <th>중개</th>
+      <th class="col-date">등록</th>
     </tr></thead>
     <tbody>${arts.map(row).join('')}</tbody>
   </table></div>`;
@@ -292,13 +295,13 @@ function row(a) {
   return `<tr data-t="${esc(a.tradeType)}">
     <td><span class="tag ${cl}">${esc(a.tradeType)}</span></td>
     <td>${priceHtml}</td>
-    <td>${areaHtml}</td>
-    <td class="muted">${esc(a.dong)||'—'}</td>
+    <td class="col-area">${areaHtml}</td>
+    <td class="muted col-dong">${esc(a.dong)||'—'}</td>
     <td class="muted">${esc(a.floor)||'—'}</td>
     <td class="muted">${esc(dir(a.direction))||'—'}</td>
-    <td class="muted">${esc(a.confirmDate)}</td>
     <td><div class="desc" title="${esc(a.description)}">${esc(a.description)||'—'}</div></td>
     <td class="muted">${esc(a.realtor)}${a.cpName?`<span class="cp">${esc(a.cpName)}</span>`:''}</td>
+    <td class="muted col-date">${esc(a.confirmDate)}</td>
   </tr>`;
 }
 
