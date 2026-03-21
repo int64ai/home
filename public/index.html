@@ -83,7 +83,15 @@
     .area-main{font-weight:700;white-space:nowrap}
     .area-sub{font-size:.78rem;color:var(--text-3)}
 
-    .desc{font-size:.82rem;color:var(--text-2);max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+    .desc{
+      font-size:.82rem;
+      color:var(--text-2);
+      max-width:320px;
+      white-space:normal;
+      line-height:1.35;
+      word-break:keep-all;
+      overflow-wrap:anywhere;
+    }
     .muted{color:var(--text-3);font-size:.82rem}
     .cp{display:inline-block;padding:.08rem .35rem;border-radius:3px;font-size:.7rem;font-weight:600;background:#f0eee9;color:var(--text-3);margin-left:.25rem;vertical-align:middle}
 
@@ -107,6 +115,7 @@
       .header{padding:2rem 1rem 1.5rem}
       .tbl-wrap{border-radius:var(--radius-sm);overflow-x:auto;-webkit-overflow-scrolling:touch}
       table{min-width:680px}
+      .desc{max-width:none}
     }
 
     /* ── Entrance animation ── */
