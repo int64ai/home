@@ -1,0 +1,13 @@
+{
+  "name": "naver-land-tracker",
+  "version": "1.0.0",
+  "private": true,
+  "description": "네이버 부동산 매물 추적 — 상록우성 & 상록라이프",
+  "scripts": {
+    "scrape": "node scripts/scrape.js",
+    "dev": "npx serve public -l 3000"
+  },
+  "dependencies": {
+    "playwright": "^1.52.0"
+  }
+}
