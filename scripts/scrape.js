@@ -1,99 +1,86 @@
 const fs = require('fs');
 const path = require('path');
-
 const DATA_PATH = path.join(__dirname, '..', 'public', 'data.json');
-const API_BASE = 'https://fin.land.naver.com/front-api/v1';
-
-const COMPLEXES = [
-  { no: '2645', name: '상록마을3단지우성', alias: '상록우성',
-    address: '성남시 분당구 내정로 55 (정자동)', totalUnits: 1762, builtYear: '1997' },
-  { no: '2623', name: '상록마을1,2단지라이프', alias: '상록라이프',
-    address: '성남시 분당구 정자로 56 (정자동)', totalUnits: 466, builtYear: '1997' }
-];
-
-const HEADERS = {
-  'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/134.0.0.0 Safari/537.36',
-  'Accept': 'application/json, text/plain, */*',
-  'Accept-Language': 'ko-KR,ko;q=0.9',
-  'Referer': 'https://fin.land.naver.com/complexes/2645'
-};
 
 const debugLog = [];
 function log(msg) { console.log(msg); debugLog.push(msg); }
 function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
 
-async function rawFetch(endpoint) {
-  const url = `${API_BASE}${endpoint}`;
+async function test(label, url, headers = {}) {
+  const defaultHeaders = {
+    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/134.0.0.0 Safari/537.36',
+    'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+    'Accept-Language': 'ko-KR,ko;q=0.9',
+    ...headers
+  };
   try {
-    const res = await fetch(url, { headers: HEADERS, signal: AbortSignal.timeout(15000) });
+    const res = await fetch(url, { headers: defaultHeaders, signal: AbortSignal.timeout(20000), redirect: 'follow' });
     const text = await res.text();
-    log(`[${res.status}] ${endpoint} → ${text.slice(0, 500)}`);
-    return { status: res.status, text, json: res.status === 200 ? JSON.parse(text) : null };
+    log(`[${label}] ${res.status} (${text.length}b) ${url}`);
+    log(`  headers: ${JSON.stringify(Object.fromEntries(res.headers))}`);
+    log(`  body: ${text.slice(0, 300)}`);
+    return { status: res.status, size: text.length, body: text.slice(0, 500) };
   } catch (err) {
-    log(`[ERR] ${endpoint} → ${err.message}`);
-    return { status: 0, text: err.message, json: null };
+    log(`[${label}] ERR: ${err.message} ${url}`);
+    return { status: 0, error: err.message };
   }
 }
 
 async function main() {
-  log('=== 매물 크롤러 v6.1 디버그 ===');
-  
-  // 테스트 1: 기본 페이지 접근
-  log('\n--- 테스트 1: 메인 페이지 ---');
-  const mainPage = await rawFetch('/../complexes/2645');
-  await sleep(500);
+  log('=== 네이버 부동산 접근 테스트 ===');
 
-  // 테스트 2: 평형 목록
-  log('\n--- 테스트 2: 평형 목록 ---');
-  const pyeong = await rawFetch('/complex/pyeongList?complexNumber=2645');
-  await sleep(500);
+  // 테스트 1: HTML 페이지
+  const r1 = await test('html', 'https://fin.land.naver.com/complexes/2645');
+  await sleep(1000);
 
-  // 테스트 3: 매물 개수
-  log('\n--- 테스트 3: 매물 개수 ---');
-  const countB1 = await rawFetch('/complex/article/count?complexNumber=2645&tradeType=B1');
-  await sleep(500);
-  const countA1 = await rawFetch('/complex/article/count?complexNumber=2645&tradeType=A1');
-  await sleep(500);
+  // 테스트 2: API with Referer (HTML 먼저 접근 후)
+  const r2 = await test('api-referer', 'https://fin.land.naver.com/front-api/v1/complex/pyeongList?complexNumber=2645', {
+    'Accept': 'application/json',
+    'Referer': 'https://fin.land.naver.com/complexes/2645'
+  });
+  await sleep(1000);
 
-  // 테스트 4: 매물 목록
-  log('\n--- 테스트 4: 매물 목록 ---');
-  const listB1 = await rawFetch('/complex/article/list?complexNumber=2645&tradeType=B1&page=1&sizePerPage=20');
-  await sleep(500);
+  // 테스트 3: API without prefix
+  const r3 = await test('api-noprefix', 'https://fin.land.naver.com/front-api/v1/complex?complexNumber=2645', {
+    'Accept': 'application/json',
+    'Referer': 'https://fin.land.naver.com/'
+  });
+  await sleep(1000);
 
-  // 테스트 5: 다른 엔드포인트들
-  log('\n--- 테스트 5: 단지 기본정보 ---');
-  const complexInfo = await rawFetch('/complex?complexNumber=2645');
-  await sleep(500);
+  // 테스트 4: 구 land.naver.com API
+  const r4 = await test('old-api', 'https://new.land.naver.com/api/articles/complex/2645?tradeType=B1&page=1&spc=20', {
+    'Accept': 'application/json'
+  });
+  await sleep(1000);
 
-  // 테스트 6: 호가 정보
-  log('\n--- 테스트 6: 호가 ---');
-  const askingPrice = await rawFetch('/complex/askingPrice?complexNumber=2645&tradeType=B1');
-  await sleep(500);
+  // 테스트 5: fin API with cookie-like auth
+  const r5 = await test('api-full-headers', 'https://fin.land.naver.com/front-api/v1/complex/article/list?complexNumber=2645&tradeType=B1&page=1&sizePerPage=20', {
+    'Accept': 'application/json, text/plain, */*',
+    'Referer': 'https://fin.land.naver.com/complexes/2645?tab=article&tradeType=B1',
+    'sec-ch-ua': '"Chromium";v="134", "Google Chrome";v="134"',
+    'sec-ch-ua-platform': '"Windows"',
+    'sec-fetch-dest': 'empty',
+    'sec-fetch-mode': 'cors',
+    'sec-fetch-site': 'same-origin'
+  });
+  await sleep(1000);
 
-  // 테스트 7: 매물 count filter
-  log('\n--- 테스트 7: count filter ---');
-  const countFilter = await rawFetch('/complex/article/count/filter?complexNumber=2645&tradeType=B1');
+  // 테스트 6: 호갱노노 (비교용 - 이건 작동하는 거 확인됨)
+  const r6 = await test('hogangnono', 'https://hogangnono.com/api/v2/apts/5dt68/trade-real?tradeType=0&areaNo=0', {
+    'Accept': 'application/json'
+  });
 
   const output = {
     updatedAt: new Date().toISOString(),
-    source: 'naver_land_debug',
+    source: 'debug_access_test',
+    tests: { html: r1, apiReferer: r2, apiNoPrefix: r3, oldApi: r4, apiFullHeaders: r5, hogangnono: r6 },
     debugLog: debugLog.slice(-100),
-    responses: {
-      pyeong: { status: pyeong.status, sample: pyeong.text?.slice(0, 500) },
-      countB1: { status: countB1.status, sample: countB1.text?.slice(0, 500) },
-      countA1: { status: countA1.status, sample: countA1.text?.slice(0, 500) },
-      listB1: { status: listB1.status, sample: listB1.text?.slice(0, 500) },
-      complexInfo: { status: complexInfo.status, sample: complexInfo.text?.slice(0, 500) },
-      askingPrice: { status: askingPrice.status, sample: askingPrice.text?.slice(0, 500) },
-      countFilter: { status: countFilter.status, sample: countFilter.text?.slice(0, 500) }
-    },
-    complexes: [],
-    blocked: false
+    complexes: [], blocked: false
   };
 
   fs.mkdirSync(path.dirname(DATA_PATH), { recursive: true });
   fs.writeFileSync(DATA_PATH, JSON.stringify(output, null, 2), 'utf-8');
-  log('\n디버그 데이터 저장 완료');
+  log('\n저장 완료');
 }
 
 main().catch(err => { console.error(err); process.exit(1); });
