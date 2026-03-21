@@ -20,61 +20,62 @@
     .header{padding:2.5rem 0 1.5rem;text-align:center}
     .header h1{font-size:1.75rem;font-weight:800;letter-spacing:-.03em}
     .header .sub{color:var(--text-2);font-size:1rem;margin-top:.3rem}
-    .status{display:flex;align-items:center;justify-content:center;gap:.5rem;margin-top:.8rem;font-size:.85rem;color:var(--text-3)}
+    .status{display:flex;align-items:center;justify-content:center;gap:.5rem;margin-top:.8rem;font-size:.88rem;color:var(--text-3)}
     .dot{width:7px;height:7px;border-radius:50%;background:#22c55e;animation:pulse 2s ease-in-out infinite}
     .dot.off{background:#ef4444;animation:none}
     @keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
 
-    .container{max-width:1000px;margin:0 auto;padding:0 1.5rem 4rem}
+    .container{max-width:1020px;margin:0 auto;padding:0 1.5rem 4rem}
 
-    .cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:1rem;margin-bottom:2.5rem}
+    .cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:1rem;margin-bottom:2.5rem}
     .card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:1.3rem 1.5rem;box-shadow:var(--shadow)}
-    .card .lbl{font-size:.8rem;font-weight:600;color:var(--text-3);margin-bottom:.25rem}
+    .card .lbl{font-size:.85rem;font-weight:600;color:var(--text-3);margin-bottom:.25rem}
     .card .val{font-size:2rem;font-weight:800;letter-spacing:-.03em}
-    .card .detail{font-size:.85rem;color:var(--text-2);margin-top:.15rem}
+    .card .detail{font-size:.88rem;color:var(--text-2);margin-top:.15rem}
 
     .section{margin-bottom:3rem}
     .section-head{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:1rem;padding-bottom:.7rem;border-bottom:2.5px solid var(--text-1)}
-    .section-title{font-size:1.4rem;font-weight:800;letter-spacing:-.02em}
-    .section-meta{font-size:.85rem;color:var(--text-2)}
-    .info-row{display:flex;flex-wrap:wrap;gap:.5rem 1.4rem;margin-bottom:1.2rem;font-size:.9rem;color:var(--text-2)}
+    .section-title{font-size:1.5rem;font-weight:800;letter-spacing:-.02em}
+    .section-meta{font-size:.88rem;color:var(--text-2)}
+    .info-row{display:flex;flex-wrap:wrap;gap:.5rem 1.4rem;margin-bottom:1.2rem;font-size:.92rem;color:var(--text-2)}
     .info-row span::before{content:'·';margin-right:.4rem;color:var(--text-3)}
 
     .latest-box{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.5rem}
-    .latest-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:1.2rem 1.4rem;box-shadow:var(--shadow)}
-    .latest-card .type{font-size:.8rem;font-weight:700;margin-bottom:.4rem}
+    .latest-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:1.3rem 1.5rem;box-shadow:var(--shadow)}
+    .latest-card .type{font-size:.88rem;font-weight:700;margin-bottom:.4rem}
     .latest-card .type.sale{color:var(--sale)}.latest-card .type.jeonse{color:var(--jeonse)}
-    .latest-card .price{font-size:1.6rem;font-weight:800;letter-spacing:-.02em}
+    .latest-card .price{font-size:1.7rem;font-weight:800;letter-spacing:-.02em}
     .latest-card .price.sale{color:var(--sale)}.latest-card .price.jeonse{color:var(--jeonse)}
-    .latest-card .meta{font-size:.82rem;color:var(--text-3);margin-top:.3rem}
+    .latest-card .meta{font-size:.85rem;color:var(--text-3);margin-top:.35rem;line-height:1.5}
 
-    .tabs{display:flex;gap:.5rem;margin-bottom:1rem;flex-wrap:wrap}
-    .tab{padding:.45rem 1rem;border-radius:100px;font-size:.85rem;font-weight:700;cursor:pointer;border:2px solid var(--border);background:var(--surface);color:var(--text-2);transition:all .15s}
-    .tab:hover{border-color:var(--text-3)}
-    .tab.active.sale{border-color:var(--sale);background:var(--sale);color:#fff}
-    .tab.active.jeonse{border-color:var(--jeonse);background:var(--jeonse);color:#fff}
-    .tab.active.all{border-color:var(--text-1);background:var(--text-1);color:#fff}
-
-    .area-filter{display:flex;gap:.4rem;margin-bottom:1rem;flex-wrap:wrap}
-    .area-btn{padding:.3rem .7rem;border-radius:8px;font-size:.8rem;font-weight:600;cursor:pointer;border:1.5px solid var(--border);background:var(--surface);color:var(--text-2);transition:all .12s}
-    .area-btn:hover{border-color:var(--text-3)}
-    .area-btn.active{border-color:var(--text-1);background:var(--text-1);color:#fff}
+    .filter-row{display:flex;gap:.4rem;flex-wrap:wrap;margin-bottom:.6rem}
+    .filter-row.trade-tabs{margin-bottom:.8rem}
+    .pill{padding:.4rem 1rem;border-radius:100px;font-size:.88rem;font-weight:700;cursor:pointer;border:2px solid var(--border);background:var(--surface);color:var(--text-2);transition:all .15s;user-select:none}
+    .pill:hover{border-color:var(--text-3)}
+    .pill.active.sale{border-color:var(--sale);background:var(--sale);color:#fff}
+    .pill.active.jeonse{border-color:var(--jeonse);background:var(--jeonse);color:#fff}
+    .pill.active.all{border-color:var(--text-1);background:var(--text-1);color:#fff}
+    .area-pill{padding:.3rem .75rem;border-radius:8px;font-size:.82rem;font-weight:600;cursor:pointer;border:1.5px solid var(--border);background:var(--surface);color:var(--text-2);transition:all .12s;user-select:none}
+    .area-pill:hover{border-color:var(--text-3)}
+    .area-pill.active{border-color:var(--text-1);background:var(--text-1);color:#fff}
 
     .tbl-wrap{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;box-shadow:var(--shadow)}
-    table{width:100%;border-collapse:collapse;font-size:.9rem}
+    table{width:100%;border-collapse:collapse;font-size:.92rem}
     thead{background:#fafaf8;border-bottom:1px solid var(--border)}
-    th{padding:.75rem 1rem;text-align:left;font-weight:700;font-size:.78rem;color:var(--text-3);text-transform:uppercase;letter-spacing:.04em;white-space:nowrap}
-    td{padding:.8rem 1rem;border-bottom:1px solid #f3f2ef;vertical-align:middle}
+    th{padding:.8rem 1rem;text-align:left;font-weight:700;font-size:.8rem;color:var(--text-3);text-transform:uppercase;letter-spacing:.04em;white-space:nowrap}
+    td{padding:.85rem 1rem;border-bottom:1px solid #f3f2ef;vertical-align:middle}
     tr:last-child td{border-bottom:none}
     tr:hover td{background:#fdfcfa}
-    .tag{display:inline-block;padding:.15rem .5rem;border-radius:5px;font-size:.78rem;font-weight:700}
+    .tag{display:inline-block;padding:.18rem .55rem;border-radius:5px;font-size:.8rem;font-weight:700}
     .tag.sale{background:#fef2f2;color:var(--sale)}.tag.jeonse{background:#eff6ff;color:var(--jeonse)}
-    .price-c{font-weight:800;font-size:.95rem;font-variant-numeric:tabular-nums}
+    .price-c{font-weight:800;font-size:1rem;font-variant-numeric:tabular-nums}
     .price-c.sale{color:var(--sale)}.price-c.jeonse{color:var(--jeonse)}
+    .dong-c{font-weight:600}
+    .muted{color:var(--text-3)}
     .empty{text-align:center;padding:3rem;color:var(--text-3);font-size:1rem}
-    .footer{text-align:center;padding:2rem;font-size:.8rem;color:var(--text-3);border-top:1px solid var(--border)}
+    .footer{text-align:center;padding:2rem;font-size:.82rem;color:var(--text-3);border-top:1px solid var(--border)}
     .footer a{color:var(--text-2);text-decoration:none}
-    @media(max-width:640px){html{font-size:15px}.container{padding:0 1rem 3rem}.latest-box{grid-template-columns:1fr}.tbl-wrap{overflow-x:auto}table{min-width:580px}}
+    @media(max-width:640px){html{font-size:15px}.container{padding:0 1rem 3rem}.latest-box{grid-template-columns:1fr}.tbl-wrap{overflow-x:auto}table{min-width:620px}}
   </style>
 </head>
 <body>
@@ -128,7 +129,7 @@
         <div class="card"><div class="lbl" style="color:var(--sale)">매매</div><div class="val" style="color:var(--sale)">${totalSale}건</div></div>
         <div class="card"><div class="lbl" style="color:var(--jeonse)">전세</div><div class="val" style="color:var(--jeonse)">${totalJeonse}건</div></div>
         <div class="card"><div class="lbl">우성 최근 매매</div><div class="val" style="font-size:1.5rem">${h(ws?.latestSale?.price||'—')}</div>
-        <div class="detail">${ws?.latestSale?h(ws.latestSale.area)+'평 · '+ws.latestSale.floor+'층 · '+fmtD(ws.latestSale.date):''}</div></div>
+        <div class="detail">${ws?.latestSale?h(ws.latestSale.area)+' · '+ws.latestSale.floor+'층'+(ws.latestSale.dong?' · '+ws.latestSale.dong+'동':'')+' · '+fmtD(ws.latestSale.date):''}</div></div>
       `;
 
       document.getElementById('content').innerHTML = cx.map(renderSection).join('');
@@ -137,48 +138,48 @@
 
     function renderSection(c) {
       const trades = c.trades || [];
-      const info = [c.address, c.totalUnits+'세대', c.dongs, c.builtYear+' 준공'];
       const areas = c.areas || [];
+      const info = [c.address, c.totalUnits+'세대', c.dongs, c.builtYear+' 준공'];
 
       return `
-      <div class="section" data-name="${c.hash}">
+      <div class="section" data-hash="${c.hash}">
         <div class="section-head">
           <span class="section-title">${h(c.alias)}</span>
-          <span class="section-meta">${h(c.name)} · 평형: ${areas.join(', ')}평</span>
+          <span class="section-meta">${h(c.name)}</span>
         </div>
         <div class="info-row">${info.map(i=>`<span>${h(i)}</span>`).join('')}</div>
         <div class="latest-box">
           ${c.latestSale?`<div class="latest-card"><div class="type sale">최근 매매</div>
             <div class="price sale">${h(c.latestSale.price)}</div>
-            <div class="meta">${h(c.latestSale.area)}평 · ${c.latestSale.floor}층${c.latestSale.dong?' · '+c.latestSale.dong+'동':''} · ${fmtD(c.latestSale.date)}</div>
+            <div class="meta">${h(c.latestSale.area)}<br>${c.latestSale.floor}층${c.latestSale.dong?' · '+h(c.latestSale.dong)+'동':''} · ${fmtD(c.latestSale.date)}</div>
           </div>`:'<div class="latest-card"><div class="type sale">최근 매매</div><div class="price">—</div></div>'}
           ${c.latestJeonse?`<div class="latest-card"><div class="type jeonse">최근 전세</div>
             <div class="price jeonse">${h(c.latestJeonse.price)}</div>
-            <div class="meta">${h(c.latestJeonse.area)}평 · ${c.latestJeonse.floor}층 · ${fmtD(c.latestJeonse.date)}</div>
+            <div class="meta">${h(c.latestJeonse.area)}<br>${c.latestJeonse.floor}층 · ${fmtD(c.latestJeonse.date)}</div>
           </div>`:'<div class="latest-card"><div class="type jeonse">최근 전세</div><div class="price">—</div></div>'}
         </div>
-        <div class="tabs" data-target="${c.hash}">
-          <div class="tab active all" data-type="all">전체 ${trades.length}</div>
-          <div class="tab sale" data-type="매매">매매 ${c.count.sale}</div>
-          <div class="tab jeonse" data-type="전세">전세 ${c.count.jeonse}</div>
+        <div class="filter-row trade-tabs">
+          <div class="pill active all" data-type="all">전체 ${trades.length}</div>
+          <div class="pill sale" data-type="매매">매매 ${c.count.sale}</div>
+          <div class="pill jeonse" data-type="전세">전세 ${c.count.jeonse}</div>
         </div>
-        <div class="area-filter" data-target="${c.hash}">
-          <div class="area-btn active" data-area="all">전체</div>
-          ${areas.map(a=>`<div class="area-btn" data-area="${a}">${a}평</div>`).join('')}
+        <div class="filter-row area-tabs">
+          <div class="area-pill active" data-area="all">전체</div>
+          ${areas.map(a=>`<div class="area-pill" data-area="${h(a.raw)}">${h(a.label)}</div>`).join('')}
         </div>
         ${trades.length?`
         <div class="tbl-wrap"><table><thead><tr>
-          <th>유형</th><th>가격</th><th>평형</th><th>층</th><th>동</th><th>계약일</th>
+          <th>유형</th><th>가격</th><th>면적</th><th>층</th><th>동</th><th>계약일</th>
         </tr></thead><tbody>
           ${trades.map(t=>{
-            const cl = t.tradeType.includes('매매')?'sale':'jeonse';
-            return `<tr data-type="${h(t.tradeType)}" data-area="${h(t.area)}">
+            const cl = t.tradeType==='매매'?'sale':'jeonse';
+            return `<tr data-type="${h(t.tradeType)}" data-area="${h(t.areaRaw)}">
               <td><span class="tag ${cl}">${h(t.tradeType)}</span></td>
               <td class="price-c ${cl}">${h(t.priceFormatted)}</td>
-              <td>${h(t.area)}평</td>
+              <td>${h(t.areaLabel)}</td>
               <td>${t.floor||'—'}층</td>
-              <td>${h(t.dong)||'—'}</td>
-              <td style="color:var(--text-3)">${h(t.dateStr)}</td>
+              <td class="${t.dong?'dong-c':'muted'}">${t.dong?h(t.dong)+'동':'—'}</td>
+              <td class="muted">${h(t.dateStr)}</td>
             </tr>`;
           }).join('')}
         </tbody></table></div>
@@ -187,33 +188,33 @@
     }
 
     function initFilters() {
-      document.querySelectorAll('.tabs').forEach(tabs => {
-        tabs.querySelectorAll('.tab').forEach(tab => {
-          tab.onclick = () => {
-            tabs.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
-            tab.classList.add('active');
-            applyFilters(tab.closest('.section'));
+      document.querySelectorAll('.trade-tabs').forEach(tabs => {
+        tabs.querySelectorAll('.pill').forEach(pill => {
+          pill.onclick = () => {
+            tabs.querySelectorAll('.pill').forEach(p=>p.classList.remove('active'));
+            pill.classList.add('active');
+            applyFilters(pill.closest('.section'));
           };
         });
       });
-      document.querySelectorAll('.area-filter').forEach(af => {
-        af.querySelectorAll('.area-btn').forEach(btn => {
-          btn.onclick = () => {
-            af.querySelectorAll('.area-btn').forEach(b=>b.classList.remove('active'));
-            btn.classList.add('active');
-            applyFilters(btn.closest('.section'));
+      document.querySelectorAll('.area-tabs').forEach(tabs => {
+        tabs.querySelectorAll('.area-pill').forEach(pill => {
+          pill.onclick = () => {
+            tabs.querySelectorAll('.area-pill').forEach(p=>p.classList.remove('active'));
+            pill.classList.add('active');
+            applyFilters(pill.closest('.section'));
           };
         });
       });
     }
 
     function applyFilters(section) {
-      const type = section.querySelector('.tab.active')?.dataset.type || 'all';
-      const area = section.querySelector('.area-btn.active')?.dataset.area || 'all';
+      const type = section.querySelector('.pill.active')?.dataset.type || 'all';
+      const area = section.querySelector('.area-pill.active')?.dataset.area || 'all';
       section.querySelectorAll('tbody tr').forEach(tr => {
-        const tMatch = type === 'all' || tr.dataset.type === type;
-        const aMatch = area === 'all' || tr.dataset.area === area;
-        tr.style.display = (tMatch && aMatch) ? '' : 'none';
+        const tOk = type === 'all' || tr.dataset.type === type;
+        const aOk = area === 'all' || tr.dataset.area === area;
+        tr.style.display = (tOk && aOk) ? '' : 'none';
       });
     }
 
