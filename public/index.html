@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>분당 정자동 아파트 실거래</title>
+  <title>분당 정자동 아파트 매물</title>
   <link href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css" rel="stylesheet">
   <style>
     *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
@@ -16,7 +16,6 @@
     }
     html{font-size:16px}
     body{font-family:'Pretendard Variable',-apple-system,system-ui,sans-serif;background:var(--bg);color:var(--text-1);line-height:1.65;-webkit-font-smoothing:antialiased}
-
     .header{padding:2.5rem 0 1.5rem;text-align:center}
     .header h1{font-size:1.75rem;font-weight:800;letter-spacing:-.03em}
     .header .sub{color:var(--text-2);font-size:1rem;margin-top:.3rem}
@@ -24,41 +23,25 @@
     .dot{width:7px;height:7px;border-radius:50%;background:#22c55e;animation:pulse 2s ease-in-out infinite}
     .dot.off{background:#ef4444;animation:none}
     @keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
-
     .container{max-width:1020px;margin:0 auto;padding:0 1.5rem 4rem}
-
-    .cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:1rem;margin-bottom:2.5rem}
+    .cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:1rem;margin-bottom:2.5rem}
     .card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:1.3rem 1.5rem;box-shadow:var(--shadow)}
     .card .lbl{font-size:.85rem;font-weight:600;color:var(--text-3);margin-bottom:.25rem}
     .card .val{font-size:2rem;font-weight:800;letter-spacing:-.03em}
     .card .detail{font-size:.88rem;color:var(--text-2);margin-top:.15rem}
-
+    .blocked-banner{background:#fef2f2;border:1px solid #fecaca;border-radius:var(--radius);padding:1rem 1.5rem;margin-bottom:2rem;color:#991b1b;font-size:.92rem;text-align:center}
     .section{margin-bottom:3rem}
     .section-head{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:1rem;padding-bottom:.7rem;border-bottom:2.5px solid var(--text-1)}
     .section-title{font-size:1.5rem;font-weight:800;letter-spacing:-.02em}
     .section-meta{font-size:.88rem;color:var(--text-2)}
     .info-row{display:flex;flex-wrap:wrap;gap:.5rem 1.4rem;margin-bottom:1.2rem;font-size:.92rem;color:var(--text-2)}
     .info-row span::before{content:'·';margin-right:.4rem;color:var(--text-3)}
-
-    .latest-box{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.5rem}
-    .latest-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:1.3rem 1.5rem;box-shadow:var(--shadow)}
-    .latest-card .type{font-size:.88rem;font-weight:700;margin-bottom:.4rem}
-    .latest-card .type.sale{color:var(--sale)}.latest-card .type.jeonse{color:var(--jeonse)}
-    .latest-card .price{font-size:1.7rem;font-weight:800;letter-spacing:-.02em}
-    .latest-card .price.sale{color:var(--sale)}.latest-card .price.jeonse{color:var(--jeonse)}
-    .latest-card .meta{font-size:.85rem;color:var(--text-3);margin-top:.35rem;line-height:1.5}
-
-    .filter-row{display:flex;gap:.4rem;flex-wrap:wrap;margin-bottom:.6rem}
-    .filter-row.trade-tabs{margin-bottom:.8rem}
+    .filter-row{display:flex;gap:.4rem;flex-wrap:wrap;margin-bottom:.8rem}
     .pill{padding:.4rem 1rem;border-radius:100px;font-size:.88rem;font-weight:700;cursor:pointer;border:2px solid var(--border);background:var(--surface);color:var(--text-2);transition:all .15s;user-select:none}
     .pill:hover{border-color:var(--text-3)}
-    .pill.active.sale{border-color:var(--sale);background:var(--sale);color:#fff}
     .pill.active.jeonse{border-color:var(--jeonse);background:var(--jeonse);color:#fff}
+    .pill.active.sale{border-color:var(--sale);background:var(--sale);color:#fff}
     .pill.active.all{border-color:var(--text-1);background:var(--text-1);color:#fff}
-    .area-pill{padding:.3rem .75rem;border-radius:8px;font-size:.82rem;font-weight:600;cursor:pointer;border:1.5px solid var(--border);background:var(--surface);color:var(--text-2);transition:all .12s;user-select:none}
-    .area-pill:hover{border-color:var(--text-3)}
-    .area-pill.active{border-color:var(--text-1);background:var(--text-1);color:#fff}
-
     .tbl-wrap{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;box-shadow:var(--shadow)}
     table{width:100%;border-collapse:collapse;font-size:.92rem}
     thead{background:#fafaf8;border-bottom:1px solid var(--border)}
@@ -70,30 +53,32 @@
     .tag.sale{background:#fef2f2;color:var(--sale)}.tag.jeonse{background:#eff6ff;color:var(--jeonse)}
     .price-c{font-weight:800;font-size:1rem;font-variant-numeric:tabular-nums}
     .price-c.sale{color:var(--sale)}.price-c.jeonse{color:var(--jeonse)}
-    .dong-c{font-weight:600}
+    .desc{font-size:.82rem;color:var(--text-3);max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
     .muted{color:var(--text-3)}
     .empty{text-align:center;padding:3rem;color:var(--text-3);font-size:1rem}
     .footer{text-align:center;padding:2rem;font-size:.82rem;color:var(--text-3);border-top:1px solid var(--border)}
     .footer a{color:var(--text-2);text-decoration:none}
-    @media(max-width:640px){html{font-size:15px}.container{padding:0 1rem 3rem}.latest-box{grid-template-columns:1fr}.tbl-wrap{overflow-x:auto}table{min-width:620px}}
+    .naver-link{display:inline-block;margin-top:.3rem;font-size:.82rem;color:var(--jeonse);text-decoration:none}
+    .naver-link:hover{text-decoration:underline}
+    @media(max-width:640px){html{font-size:15px}.container{padding:0 1rem 3rem}.tbl-wrap{overflow-x:auto}table{min-width:650px}}
   </style>
 </head>
 <body>
   <div class="header">
-    <h1>분당 정자동 아파트 실거래</h1>
+    <h1>분당 정자동 아파트 매물</h1>
     <p class="sub">상록마을우성 · 상록마을라이프</p>
     <div class="status"><span class="dot" id="dot"></span><span id="st">로딩 중...</span></div>
   </div>
   <div class="container">
+    <div id="banner"></div>
     <div class="cards" id="cards"></div>
     <div id="content"><div class="empty">데이터 로딩 중...</div></div>
   </div>
   <div class="footer">
-    출처: <a href="https://hogangnono.com" target="_blank">호갱노노</a> (실거래가 공공데이터 기반) · 30분 자동 업데이트 · 참고용
+    출처: <a href="https://fin.land.naver.com" target="_blank">네이버 부동산</a> · 30분 자동 업데이트 · 참고용
   </div>
   <script>
     const h = s => { const d = document.createElement('div'); d.textContent = s||''; return d.innerHTML; };
-    const fmtD = d => d ? new Date(d).toISOString().split('T')[0].replace(/-/g,'.') : '—';
     const fmtKST = d => {
       if (!d) return '—';
       const dt = new Date(new Date(d).getTime()+9*3600000);
@@ -118,74 +103,64 @@
       document.getElementById('dot').classList.remove('off');
       document.getElementById('st').textContent = `${fmtKST(data.updatedAt)} KST (${ago(data.updatedAt)})`;
 
+      if (data.blocked) {
+        document.getElementById('banner').innerHTML = '<div class="blocked-banner">⚠ 네이버 API 접근이 일시 차단되었습니다. 다음 업데이트에서 자동 재시도합니다.</div>';
+      }
+
       const cx = data.complexes || [];
-      const totalAll = cx.reduce((s,c) => s+c.count.total, 0);
-      const totalSale = cx.reduce((s,c) => s+c.count.sale, 0);
-      const totalJeonse = cx.reduce((s,c) => s+c.count.jeonse, 0);
-      const ws = cx.find(c => c.hash === '5dt68');
+      const totalAll = cx.reduce((s,c) => s+(c.count?.total||0), 0);
+      const totalJeonse = cx.reduce((s,c) => s+(c.count?.jeonse||0), 0);
+      const totalSale = cx.reduce((s,c) => s+(c.count?.sale||0), 0);
 
       document.getElementById('cards').innerHTML = `
-        <div class="card"><div class="lbl">총 실거래</div><div class="val">${totalAll}건</div><div class="detail">${cx.length}개 단지</div></div>
-        <div class="card"><div class="lbl" style="color:var(--sale)">매매</div><div class="val" style="color:var(--sale)">${totalSale}건</div></div>
+        <div class="card"><div class="lbl">총 매물</div><div class="val">${totalAll}건</div><div class="detail">${cx.length}개 단지</div></div>
         <div class="card"><div class="lbl" style="color:var(--jeonse)">전세</div><div class="val" style="color:var(--jeonse)">${totalJeonse}건</div></div>
-        <div class="card"><div class="lbl">우성 최근 매매</div><div class="val" style="font-size:1.5rem">${h(ws?.latestSale?.price||'—')}</div>
-        <div class="detail">${ws?.latestSale?(ws.latestSale.pyeong||'')+'평 · '+ws.latestSale.floor+'층'+(ws.latestSale.dong?' · '+ws.latestSale.dong+'동':'')+' · '+fmtD(ws.latestSale.date):''}</div></div>
+        <div class="card"><div class="lbl" style="color:var(--sale)">매매</div><div class="val" style="color:var(--sale)">${totalSale}건</div></div>
       `;
 
       document.getElementById('content').innerHTML = cx.map(renderSection).join('');
       initFilters();
-      // 기본: 전세 탭 활성화 → 전세만 표시
       document.querySelectorAll('.section').forEach(applyFilters);
     }
 
     function renderSection(c) {
-      const trades = c.trades || [];
-      const areas = c.areas || [];
-      const info = [c.address, c.totalUnits+'세대', c.dongs, c.builtYear+' 준공'];
+      const articles = c.articles || [];
+      const info = [c.address, c.totalUnits+'세대', c.builtYear+' 준공'];
 
       return `
-      <div class="section" data-hash="${c.hash}">
+      <div class="section" data-no="${c.complexNo}">
         <div class="section-head">
           <span class="section-title">${h(c.alias)}</span>
           <span class="section-meta">${h(c.name)}</span>
         </div>
-        <div class="info-row">${info.map(i=>`<span>${h(i)}</span>`).join('')}</div>
-        <div class="latest-box">
-          ${c.latestSale?`<div class="latest-card"><div class="type sale">최근 매매</div>
-            <div class="price sale">${h(c.latestSale.price)}</div>
-            <div class="meta">${c.latestSale.pyeong||''}평 · ${c.latestSale.floor}층${c.latestSale.dong?' · '+h(c.latestSale.dong)+'동':''} · ${fmtD(c.latestSale.date)}</div>
-          </div>`:'<div class="latest-card"><div class="type sale">최근 매매</div><div class="price">—</div></div>'}
-          ${c.latestJeonse?`<div class="latest-card"><div class="type jeonse">최근 전세</div>
-            <div class="price jeonse">${h(c.latestJeonse.price)}</div>
-            <div class="meta">${c.latestJeonse.pyeong||''}평 · ${c.latestJeonse.floor}층 · ${fmtD(c.latestJeonse.date)}</div>
-          </div>`:'<div class="latest-card"><div class="type jeonse">최근 전세</div><div class="price">—</div></div>'}
+        <div class="info-row">
+          ${info.map(i=>`<span>${h(i)}</span>`).join('')}
+          <a class="naver-link" href="https://fin.land.naver.com/complexes/${c.complexNo}" target="_blank">네이버 부동산에서 보기 →</a>
         </div>
         <div class="filter-row trade-tabs">
-          <div class="pill active jeonse" data-type="전세">전세 ${c.count.jeonse}</div>
-          <div class="pill sale" data-type="매매">매매 ${c.count.sale}</div>
-          <div class="pill all" data-type="all">전체 ${trades.length}</div>
+          <div class="pill active jeonse" data-type="전세">전세 ${c.count?.jeonse||0}</div>
+          <div class="pill sale" data-type="매매">매매 ${c.count?.sale||0}</div>
+          <div class="pill all" data-type="all">전체 ${articles.length}</div>
         </div>
-        <div class="filter-row area-tabs">
-          <div class="area-pill active" data-area="all">전체</div>
-          ${areas.map(a=>`<div class="area-pill" data-area="${h(a.raw)}">${a.pyeong}평</div>`).join('')}
-        </div>
-        ${trades.length?`
+        ${articles.length?`
         <div class="tbl-wrap"><table><thead><tr>
-          <th>유형</th><th>가격</th><th>면적</th><th>층</th><th>동</th><th>계약일</th>
+          <th>유형</th><th>가격</th><th>면적</th><th>층</th><th>동</th><th>방향</th><th>확인일</th><th>특징</th>
         </tr></thead><tbody>
-          ${trades.map(t=>{
-            const cl = t.tradeType==='매매'?'sale':'jeonse';
-            return `<tr data-type="${h(t.tradeType)}" data-area="${h(t.areaRaw)}">
-              <td><span class="tag ${cl}">${h(t.tradeType)}</span></td>
-              <td class="price-c ${cl}">${h(t.priceFormatted)}</td>
-              <td>${t.pyeong}평</td>
-              <td>${t.floor||'—'}층</td>
-              <td class="${t.dong?'dong-c':'muted'}">${t.dong?h(t.dong)+'동':'—'}</td>
-              <td class="muted">${h(t.dateStr)}</td>
+          ${articles.map(a=>{
+            const cl = a.tradeType==='매매'?'sale':'jeonse';
+            return `<tr data-type="${h(a.tradeType)}">
+              <td><span class="tag ${cl}">${h(a.tradeType)}</span></td>
+              <td class="price-c ${cl}">${h(a.price)}</td>
+              <td>${a.pyeongName?h(a.pyeongName)+'평':h(a.area)+'㎡'}</td>
+              <td>${h(a.floor)||'—'}</td>
+              <td>${a.dong?h(a.dong):'—'}</td>
+              <td class="muted">${h(a.direction)||'—'}</td>
+              <td class="muted">${h(a.confirmDate)||'—'}</td>
+              <td class="desc" title="${h(a.description)}">${h(a.description)||'—'}</td>
             </tr>`;
           }).join('')}
         </tbody></table></div>
-        `:'<div class="empty">실거래 내역 없음</div>'}
+        `:'<div class="empty">현재 등록된 매물이 없거나 데이터 수집 대기 중</div>'}
       </div>`;
     }
 
@@ -199,24 +174,12 @@
           };
         });
       });
-      document.querySelectorAll('.area-tabs').forEach(tabs => {
-        tabs.querySelectorAll('.area-pill').forEach(pill => {
-          pill.onclick = () => {
-            tabs.querySelectorAll('.area-pill').forEach(p=>p.classList.remove('active'));
-            pill.classList.add('active');
-            applyFilters(pill.closest('.section'));
-          };
-        });
-      });
     }
 
     function applyFilters(section) {
       const type = section.querySelector('.pill.active')?.dataset.type || 'all';
-      const area = section.querySelector('.area-pill.active')?.dataset.area || 'all';
       section.querySelectorAll('tbody tr').forEach(tr => {
-        const tOk = type === 'all' || tr.dataset.type === type;
-        const aOk = area === 'all' || tr.dataset.area === area;
-        tr.style.display = (tOk && aOk) ? '' : 'none';
+        tr.style.display = (type === 'all' || tr.dataset.type === type) ? '' : 'none';
       });
     }
 
