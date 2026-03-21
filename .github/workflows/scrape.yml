@@ -2,14 +2,13 @@ name: 네이버 부동산 크롤링
 
 on:
   schedule:
-    # 매 30분마다 실행
     - cron: '*/30 * * * *'
   push:
     branches: [main]
     paths:
       - 'scripts/**'
       - '.github/workflows/scrape.yml'
-  workflow_dispatch: # 수동 실행 가능
+  workflow_dispatch:
 
 permissions:
   contents: write
@@ -17,7 +16,7 @@ permissions:
 jobs:
   scrape:
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 5
 
     steps:
       - name: 체크아웃
@@ -28,26 +27,17 @@ jobs:
         with:
           node-version: '22'
 
-      - name: 의존성 설치
-        run: npm install
-
-      - name: Playwright 브라우저 설치
-        run: npx playwright install chromium --with-deps
-
       - name: 크롤링 실행
-        run: node scripts/scrape.js || echo "크롤링 실패 — 다음 실행에서 재시도"
-        env:
-          NODE_ENV: production
+        run: node scripts/scrape.js
 
-      - name: 데이터 변경 확인 & 커밋
+      - name: 데이터 커밋 & 푸시
         run: |
           git config user.name "Naver Land Bot"
           git config user.email "bot@naver-land-tracker.local"
-          
           if git diff --quiet public/data.json 2>/dev/null; then
-            echo "데이터 변경 없음 — 스킵"
+            echo "변경 없음"
           else
             git add public/data.json
-            git commit -m "📊 매물 데이터 업데이트 $(date -u +'%Y-%m-%d %H:%M UTC')"
+            git commit -m "📊 매물 업데이트 $(TZ=Asia/Seoul date +'%Y-%m-%d %H:%M KST')"
             git push
           fi
