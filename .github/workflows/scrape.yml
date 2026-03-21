@@ -27,16 +27,15 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '22'
-          cache: 'npm'
 
       - name: 의존성 설치
-        run: npm ci
+        run: npm install
 
       - name: Playwright 브라우저 설치
         run: npx playwright install chromium --with-deps
 
       - name: 크롤링 실행
-        run: npm run scrape
+        run: node scripts/scrape.js || echo "크롤링 실패 — 다음 실행에서 재시도"
         env:
           NODE_ENV: production
 
