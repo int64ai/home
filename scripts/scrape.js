@@ -66,8 +66,8 @@ async function main() {
 
   // 1. 메인 페이지 로드 → 세션 확보
   log('메인 페이지 로드...');
-  await page.goto(`${BASE_URL}/map`, { waitUntil: 'networkidle', timeout: 30000 });
-  await sleep(2000);
+  await page.goto(`${BASE_URL}/map`, { waitUntil: 'domcontentloaded', timeout: 30000 });
+  await sleep(5000); // SPA 로드 대기
   log(`URL: ${page.url()}`);
 
   // 2. 각 단지별 데이터 수집
@@ -344,9 +344,9 @@ async function scrapeArticlesFromDOM(page, complexNumber) {
   try {
     // 지도에서 단지 클릭 후 매물 패널이 열리는 URL 패턴 시도
     await page.goto(`${BASE_URL}/map?complexNumber=${complexNumber}`, {
-      waitUntil: 'networkidle', timeout: 20000
+      waitUntil: 'domcontentloaded', timeout: 20000
     });
-    await sleep(3000);
+    await sleep(5000); // SPA 렌더링 대기
 
     // 매물 목록 패널에서 데이터 추출
     const articles = await page.evaluate(() => {
