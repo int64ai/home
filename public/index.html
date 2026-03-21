@@ -4,65 +4,77 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>분당 정자동 아파트 실거래</title>
-  <link rel="preconnect" href="https://cdn.jsdelivr.net">
   <link href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css" rel="stylesheet">
   <style>
     *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
     :root{
       --bg:#f8f8f6;--surface:#fff;--border:#e8e6e1;
       --text-1:#1a1a18;--text-2:#6b6960;--text-3:#9b9689;
-      --sale:#c73e1d;--jeonse:#2563eb;--monthly:#7c3aed;
-      --accent:#2d5a27;--radius:12px;
+      --sale:#c73e1d;--jeonse:#2563eb;
+      --radius:14px;
       --shadow:0 1px 3px rgba(0,0,0,.04),0 4px 12px rgba(0,0,0,.03);
     }
-    html{font-size:15px}
-    body{font-family:'Pretendard Variable',-apple-system,system-ui,sans-serif;background:var(--bg);color:var(--text-1);line-height:1.6;-webkit-font-smoothing:antialiased}
+    html{font-size:16px}
+    body{font-family:'Pretendard Variable',-apple-system,system-ui,sans-serif;background:var(--bg);color:var(--text-1);line-height:1.65;-webkit-font-smoothing:antialiased}
+
     .header{padding:2.5rem 0 1.5rem;text-align:center}
-    .header h1{font-size:1.5rem;font-weight:700;letter-spacing:-.02em}
-    .header .sub{color:var(--text-2);font-size:.85rem;margin-top:.2rem}
-    .status{display:flex;align-items:center;justify-content:center;gap:.4rem;margin-top:.8rem;font-size:.78rem;color:var(--text-3)}
-    .dot{width:6px;height:6px;border-radius:50%;background:#22c55e;animation:pulse 2s ease-in-out infinite}
+    .header h1{font-size:1.75rem;font-weight:800;letter-spacing:-.03em}
+    .header .sub{color:var(--text-2);font-size:1rem;margin-top:.3rem}
+    .status{display:flex;align-items:center;justify-content:center;gap:.5rem;margin-top:.8rem;font-size:.85rem;color:var(--text-3)}
+    .dot{width:7px;height:7px;border-radius:50%;background:#22c55e;animation:pulse 2s ease-in-out infinite}
     .dot.off{background:#ef4444;animation:none}
     @keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
-    .container{max-width:960px;margin:0 auto;padding:0 1.5rem 4rem}
-    .cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:.8rem;margin-bottom:2rem}
-    .card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:1rem 1.2rem;box-shadow:var(--shadow)}
-    .card .lbl{font-size:.7rem;font-weight:500;color:var(--text-3);text-transform:uppercase;letter-spacing:.04em;margin-bottom:.2rem}
-    .card .val{font-size:1.6rem;font-weight:700;letter-spacing:-.02em}
-    .card .detail{font-size:.75rem;color:var(--text-2);margin-top:.1rem}
-    .section{margin-bottom:2.5rem}
-    .section-head{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:.8rem;padding-bottom:.6rem;border-bottom:2px solid var(--text-1)}
-    .section-title{font-size:1.2rem;font-weight:700;letter-spacing:-.01em}
-    .section-meta{font-size:.78rem;color:var(--text-2)}
-    .info-row{display:flex;flex-wrap:wrap;gap:.4rem 1.2rem;margin-bottom:1rem;font-size:.8rem;color:var(--text-2)}
-    .info-row span::before{content:'';display:inline-block;width:3px;height:3px;border-radius:50%;background:var(--text-3);margin-right:.35rem;vertical-align:middle;position:relative;top:-1px}
-    .latest-box{display:grid;grid-template-columns:1fr 1fr;gap:.8rem;margin-bottom:1.2rem}
-    .latest-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:1rem;box-shadow:var(--shadow)}
-    .latest-card .type{font-size:.7rem;font-weight:600;margin-bottom:.3rem}
+
+    .container{max-width:1000px;margin:0 auto;padding:0 1.5rem 4rem}
+
+    .cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:1rem;margin-bottom:2.5rem}
+    .card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:1.3rem 1.5rem;box-shadow:var(--shadow)}
+    .card .lbl{font-size:.8rem;font-weight:600;color:var(--text-3);margin-bottom:.25rem}
+    .card .val{font-size:2rem;font-weight:800;letter-spacing:-.03em}
+    .card .detail{font-size:.85rem;color:var(--text-2);margin-top:.15rem}
+
+    .section{margin-bottom:3rem}
+    .section-head{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:1rem;padding-bottom:.7rem;border-bottom:2.5px solid var(--text-1)}
+    .section-title{font-size:1.4rem;font-weight:800;letter-spacing:-.02em}
+    .section-meta{font-size:.85rem;color:var(--text-2)}
+    .info-row{display:flex;flex-wrap:wrap;gap:.5rem 1.4rem;margin-bottom:1.2rem;font-size:.9rem;color:var(--text-2)}
+    .info-row span::before{content:'·';margin-right:.4rem;color:var(--text-3)}
+
+    .latest-box{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.5rem}
+    .latest-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:1.2rem 1.4rem;box-shadow:var(--shadow)}
+    .latest-card .type{font-size:.8rem;font-weight:700;margin-bottom:.4rem}
     .latest-card .type.sale{color:var(--sale)}.latest-card .type.jeonse{color:var(--jeonse)}
-    .latest-card .price{font-size:1.3rem;font-weight:700;letter-spacing:-.02em}
+    .latest-card .price{font-size:1.6rem;font-weight:800;letter-spacing:-.02em}
     .latest-card .price.sale{color:var(--sale)}.latest-card .price.jeonse{color:var(--jeonse)}
-    .latest-card .meta{font-size:.72rem;color:var(--text-3);margin-top:.2rem}
-    .tabs{display:flex;gap:.4rem;margin-bottom:.8rem}
-    .tab{padding:.35rem .8rem;border-radius:100px;font-size:.75rem;font-weight:600;cursor:pointer;border:1.5px solid var(--border);background:var(--surface);color:var(--text-2);transition:all .15s}
-    .tab.active{border-color:var(--text-1);background:var(--text-1);color:#fff}
-    .tab .cnt{font-weight:800}
+    .latest-card .meta{font-size:.82rem;color:var(--text-3);margin-top:.3rem}
+
+    .tabs{display:flex;gap:.5rem;margin-bottom:1rem;flex-wrap:wrap}
+    .tab{padding:.45rem 1rem;border-radius:100px;font-size:.85rem;font-weight:700;cursor:pointer;border:2px solid var(--border);background:var(--surface);color:var(--text-2);transition:all .15s}
+    .tab:hover{border-color:var(--text-3)}
+    .tab.active.sale{border-color:var(--sale);background:var(--sale);color:#fff}
+    .tab.active.jeonse{border-color:var(--jeonse);background:var(--jeonse);color:#fff}
+    .tab.active.all{border-color:var(--text-1);background:var(--text-1);color:#fff}
+
+    .area-filter{display:flex;gap:.4rem;margin-bottom:1rem;flex-wrap:wrap}
+    .area-btn{padding:.3rem .7rem;border-radius:8px;font-size:.8rem;font-weight:600;cursor:pointer;border:1.5px solid var(--border);background:var(--surface);color:var(--text-2);transition:all .12s}
+    .area-btn:hover{border-color:var(--text-3)}
+    .area-btn.active{border-color:var(--text-1);background:var(--text-1);color:#fff}
+
     .tbl-wrap{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;box-shadow:var(--shadow)}
-    table{width:100%;border-collapse:collapse;font-size:.8rem}
+    table{width:100%;border-collapse:collapse;font-size:.9rem}
     thead{background:#fafaf8;border-bottom:1px solid var(--border)}
-    th{padding:.6rem .8rem;text-align:left;font-weight:600;font-size:.7rem;color:var(--text-3);text-transform:uppercase;letter-spacing:.04em;white-space:nowrap}
-    td{padding:.65rem .8rem;border-bottom:1px solid #f3f2ef;vertical-align:middle}
+    th{padding:.75rem 1rem;text-align:left;font-weight:700;font-size:.78rem;color:var(--text-3);text-transform:uppercase;letter-spacing:.04em;white-space:nowrap}
+    td{padding:.8rem 1rem;border-bottom:1px solid #f3f2ef;vertical-align:middle}
     tr:last-child td{border-bottom:none}
     tr:hover td{background:#fdfcfa}
-    .tag{display:inline-block;padding:.12rem .4rem;border-radius:4px;font-size:.68rem;font-weight:600}
-    .tag.sale{background:#fef2f2;color:var(--sale)}.tag.jeonse{background:#eff6ff;color:var(--jeonse)}.tag.monthly{background:#f5f3ff;color:var(--monthly)}
-    .price-c{font-weight:700;font-variant-numeric:tabular-nums}
-    .price-c.sale{color:var(--sale)}.price-c.jeonse{color:var(--jeonse)}.price-c.monthly{color:var(--monthly)}
-    .cancelled{text-decoration:line-through;opacity:.5}
-    .empty{text-align:center;padding:3rem;color:var(--text-3)}
-    .footer{text-align:center;padding:2rem;font-size:.72rem;color:var(--text-3);border-top:1px solid var(--border)}
+    .tag{display:inline-block;padding:.15rem .5rem;border-radius:5px;font-size:.78rem;font-weight:700}
+    .tag.sale{background:#fef2f2;color:var(--sale)}.tag.jeonse{background:#eff6ff;color:var(--jeonse)}
+    .price-c{font-weight:800;font-size:.95rem;font-variant-numeric:tabular-nums}
+    .price-c.sale{color:var(--sale)}.price-c.jeonse{color:var(--jeonse)}
+    .empty{text-align:center;padding:3rem;color:var(--text-3);font-size:1rem}
+    .footer{text-align:center;padding:2rem;font-size:.8rem;color:var(--text-3);border-top:1px solid var(--border)}
     .footer a{color:var(--text-2);text-decoration:none}
-    @media(max-width:640px){html{font-size:14px}.container{padding:0 1rem 3rem}.latest-box{grid-template-columns:1fr}.tbl-wrap{overflow-x:auto}table{min-width:550px}}
+    @media(max-width:640px){html{font-size:15px}.container{padding:0 1rem 3rem}.latest-box{grid-template-columns:1fr}.tbl-wrap{overflow-x:auto}table{min-width:580px}}
   </style>
 </head>
 <body>
@@ -76,151 +88,141 @@
     <div id="content"><div class="empty">데이터 로딩 중...</div></div>
   </div>
   <div class="footer">
-    출처: <a href="https://hogangnono.com" target="_blank">호갱노노</a> (실거래가 공공데이터 기반)
-    · 30분마다 자동 업데이트 · 참고용
+    출처: <a href="https://hogangnono.com" target="_blank">호갱노노</a> (실거래가 공공데이터 기반) · 30분 자동 업데이트 · 참고용
   </div>
   <script>
-    const $ = s => document.querySelector(s);
-    const h = s => { const d = document.createElement('div'); d.textContent = s || ''; return d.innerHTML; };
-    
-    function timeAgo(d) {
+    const h = s => { const d = document.createElement('div'); d.textContent = s||''; return d.innerHTML; };
+    const fmtD = d => d ? new Date(d).toISOString().split('T')[0].replace(/-/g,'.') : '—';
+    const fmtKST = d => {
       if (!d) return '—';
-      const m = Math.floor((Date.now() - new Date(d).getTime()) / 60000);
-      if (m < 1) return '방금 전';
-      if (m < 60) return m + '분 전';
-      const hr = Math.floor(m / 60);
-      if (hr < 24) return hr + '시간 전';
-      return Math.floor(hr / 24) + '일 전';
-    }
-
-    function fmtDate(d) {
-      if (!d) return '—';
-      return new Date(d).toISOString().split('T')[0].replace(/-/g, '.');
-    }
-
-    function fmtKST(d) {
-      if (!d) return '—';
-      const dt = new Date(new Date(d).getTime() + 9*3600000);
-      return `${dt.getFullYear()}.${String(dt.getMonth()+1).padStart(2,'0')}.${String(dt.getDate()).padStart(2,'0')} ${String(dt.getHours()).padStart(2,'0')}:${String(dt.getMinutes()).padStart(2,'0')} KST`;
-    }
-
-    function cls(t) {
-      if (!t) return '';
-      if (t.includes('매매')) return 'sale';
-      if (t.includes('전세')) return 'jeonse';
-      return 'monthly';
-    }
+      const dt = new Date(new Date(d).getTime()+9*3600000);
+      return `${dt.getFullYear()}.${String(dt.getMonth()+1).padStart(2,'0')}.${String(dt.getDate()).padStart(2,'0')} ${String(dt.getHours()).padStart(2,'0')}:${String(dt.getMinutes()).padStart(2,'0')}`;
+    };
+    const ago = d => {
+      if(!d) return '';
+      const m=Math.floor((Date.now()-new Date(d).getTime())/60000);
+      if(m<60) return m+'분 전';
+      const hr=Math.floor(m/60);
+      if(hr<24) return hr+'시간 전';
+      return Math.floor(hr/24)+'일 전';
+    };
 
     function render(data) {
       if (!data.updatedAt) {
-        $('#dot').classList.add('off');
-        $('#st').textContent = '데이터 수집 대기 중';
-        $('#content').innerHTML = '<div class="empty">GitHub Actions가 아직 실행되지 않았습니다.</div>';
+        document.getElementById('dot').classList.add('off');
+        document.getElementById('st').textContent = '데이터 대기 중';
+        document.getElementById('content').innerHTML = '<div class="empty">GitHub Actions 첫 실행 대기 중</div>';
         return;
       }
-
-      $('#dot').classList.remove('off');
-      $('#st').textContent = `${fmtKST(data.updatedAt)} (${timeAgo(data.updatedAt)})`;
+      document.getElementById('dot').classList.remove('off');
+      document.getElementById('st').textContent = `${fmtKST(data.updatedAt)} KST (${ago(data.updatedAt)})`;
 
       const cx = data.complexes || [];
-      const totalTrades = cx.reduce((s, c) => s + (c.trades?.length || 0), 0);
-      const totalSale = cx.reduce((s, c) => s + (c.tradeCount?.sale || 0), 0);
-      const totalJeonse = cx.reduce((s, c) => s + (c.tradeCount?.jeonse || 0), 0);
+      const totalAll = cx.reduce((s,c) => s+c.count.total, 0);
+      const totalSale = cx.reduce((s,c) => s+c.count.sale, 0);
+      const totalJeonse = cx.reduce((s,c) => s+c.count.jeonse, 0);
+      const ws = cx.find(c => c.hash === '5dt68');
 
-      // 최근 매매가 (우성 기준)
-      const wooseong = cx.find(c => c.hash === '5dt68');
-      const latestPrice = wooseong?.latestTrades?.sale?.price || '—';
-
-      $('#cards').innerHTML = `
-        <div class="card"><div class="lbl">최근 실거래</div><div class="val">${totalTrades}</div><div class="detail">${cx.length}개 단지</div></div>
-        <div class="card"><div class="lbl" style="color:var(--sale)">매매</div><div class="val" style="color:var(--sale)">${totalSale}</div></div>
-        <div class="card"><div class="lbl" style="color:var(--jeonse)">전세</div><div class="val" style="color:var(--jeonse)">${totalJeonse}</div></div>
-        <div class="card"><div class="lbl">우성 최근 매매</div><div class="val" style="font-size:1.2rem">${h(latestPrice)}</div><div class="detail">${wooseong?.latestTrades?.sale ? h(wooseong.latestTrades.sale.area) + '평 · ' + fmtDate(wooseong.latestTrades.sale.date) : ''}</div></div>
+      document.getElementById('cards').innerHTML = `
+        <div class="card"><div class="lbl">총 실거래</div><div class="val">${totalAll}건</div><div class="detail">${cx.length}개 단지</div></div>
+        <div class="card"><div class="lbl" style="color:var(--sale)">매매</div><div class="val" style="color:var(--sale)">${totalSale}건</div></div>
+        <div class="card"><div class="lbl" style="color:var(--jeonse)">전세</div><div class="val" style="color:var(--jeonse)">${totalJeonse}건</div></div>
+        <div class="card"><div class="lbl">우성 최근 매매</div><div class="val" style="font-size:1.5rem">${h(ws?.latestSale?.price||'—')}</div>
+        <div class="detail">${ws?.latestSale?h(ws.latestSale.area)+'평 · '+ws.latestSale.floor+'층 · '+fmtD(ws.latestSale.date):''}</div></div>
       `;
 
-      $('#content').innerHTML = cx.map(c => renderComplex(c)).join('');
+      document.getElementById('content').innerHTML = cx.map(renderSection).join('');
+      initFilters();
+    }
 
-      // Tab switching
+    function renderSection(c) {
+      const trades = c.trades || [];
+      const info = [c.address, c.totalUnits+'세대', c.dongs, c.builtYear+' 준공'];
+      const areas = c.areas || [];
+
+      return `
+      <div class="section" data-name="${c.hash}">
+        <div class="section-head">
+          <span class="section-title">${h(c.alias)}</span>
+          <span class="section-meta">${h(c.name)} · 평형: ${areas.join(', ')}평</span>
+        </div>
+        <div class="info-row">${info.map(i=>`<span>${h(i)}</span>`).join('')}</div>
+        <div class="latest-box">
+          ${c.latestSale?`<div class="latest-card"><div class="type sale">최근 매매</div>
+            <div class="price sale">${h(c.latestSale.price)}</div>
+            <div class="meta">${h(c.latestSale.area)}평 · ${c.latestSale.floor}층${c.latestSale.dong?' · '+c.latestSale.dong+'동':''} · ${fmtD(c.latestSale.date)}</div>
+          </div>`:'<div class="latest-card"><div class="type sale">최근 매매</div><div class="price">—</div></div>'}
+          ${c.latestJeonse?`<div class="latest-card"><div class="type jeonse">최근 전세</div>
+            <div class="price jeonse">${h(c.latestJeonse.price)}</div>
+            <div class="meta">${h(c.latestJeonse.area)}평 · ${c.latestJeonse.floor}층 · ${fmtD(c.latestJeonse.date)}</div>
+          </div>`:'<div class="latest-card"><div class="type jeonse">최근 전세</div><div class="price">—</div></div>'}
+        </div>
+        <div class="tabs" data-target="${c.hash}">
+          <div class="tab active all" data-type="all">전체 ${trades.length}</div>
+          <div class="tab sale" data-type="매매">매매 ${c.count.sale}</div>
+          <div class="tab jeonse" data-type="전세">전세 ${c.count.jeonse}</div>
+        </div>
+        <div class="area-filter" data-target="${c.hash}">
+          <div class="area-btn active" data-area="all">전체</div>
+          ${areas.map(a=>`<div class="area-btn" data-area="${a}">${a}평</div>`).join('')}
+        </div>
+        ${trades.length?`
+        <div class="tbl-wrap"><table><thead><tr>
+          <th>유형</th><th>가격</th><th>평형</th><th>층</th><th>동</th><th>계약일</th>
+        </tr></thead><tbody>
+          ${trades.map(t=>{
+            const cl = t.tradeType.includes('매매')?'sale':'jeonse';
+            return `<tr data-type="${h(t.tradeType)}" data-area="${h(t.area)}">
+              <td><span class="tag ${cl}">${h(t.tradeType)}</span></td>
+              <td class="price-c ${cl}">${h(t.priceFormatted)}</td>
+              <td>${h(t.area)}평</td>
+              <td>${t.floor||'—'}층</td>
+              <td>${h(t.dong)||'—'}</td>
+              <td style="color:var(--text-3)">${h(t.dateStr)}</td>
+            </tr>`;
+          }).join('')}
+        </tbody></table></div>
+        `:'<div class="empty">실거래 내역 없음</div>'}
+      </div>`;
+    }
+
+    function initFilters() {
       document.querySelectorAll('.tabs').forEach(tabs => {
         tabs.querySelectorAll('.tab').forEach(tab => {
           tab.onclick = () => {
-            const section = tab.closest('.section');
-            section.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            tabs.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
             tab.classList.add('active');
-            const type = tab.dataset.type;
-            section.querySelectorAll('tbody tr').forEach(tr => {
-              tr.style.display = (!type || type === 'all' || tr.dataset.type === type) ? '' : 'none';
-            });
+            applyFilters(tab.closest('.section'));
+          };
+        });
+      });
+      document.querySelectorAll('.area-filter').forEach(af => {
+        af.querySelectorAll('.area-btn').forEach(btn => {
+          btn.onclick = () => {
+            af.querySelectorAll('.area-btn').forEach(b=>b.classList.remove('active'));
+            btn.classList.add('active');
+            applyFilters(btn.closest('.section'));
           };
         });
       });
     }
 
-    function renderComplex(c) {
-      const trades = c.trades || [];
-      const info = [c.address, c.totalUnits + '세대', c.dongs, c.builtYear + ' 준공'].filter(Boolean);
-
-      return `
-        <div class="section">
-          <div class="section-head">
-            <span class="section-title">${h(c.alias || c.name)}</span>
-            <span class="section-meta">${h(c.name)}</span>
-          </div>
-          <div class="info-row">${info.map(i => `<span>${h(i)}</span>`).join('')}</div>
-          <div class="latest-box">
-            ${c.latestTrades?.sale ? `
-              <div class="latest-card">
-                <div class="type sale">최근 매매</div>
-                <div class="price sale">${h(c.latestTrades.sale.price)}</div>
-                <div class="meta">${h(c.latestTrades.sale.area)}평 · ${c.latestTrades.sale.floor}층${c.latestTrades.sale.dong ? ' · ' + c.latestTrades.sale.dong + '동' : ''} · ${fmtDate(c.latestTrades.sale.date)}</div>
-              </div>
-            ` : '<div class="latest-card"><div class="type sale">최근 매매</div><div class="price">—</div></div>'}
-            ${c.latestTrades?.jeonse ? `
-              <div class="latest-card">
-                <div class="type jeonse">최근 전세</div>
-                <div class="price jeonse">${h(c.latestTrades.jeonse.price)}</div>
-                <div class="meta">${h(c.latestTrades.jeonse.area)}평 · ${c.latestTrades.jeonse.floor}층 · ${fmtDate(c.latestTrades.jeonse.date)}</div>
-              </div>
-            ` : '<div class="latest-card"><div class="type jeonse">최근 전세</div><div class="price">—</div></div>'}
-          </div>
-          <div class="tabs">
-            <div class="tab active" data-type="all">전체 <span class="cnt">${trades.length}</span></div>
-            <div class="tab" data-type="매매">매매 <span class="cnt">${c.tradeCount?.sale||0}</span></div>
-            <div class="tab" data-type="전세">전세 <span class="cnt">${c.tradeCount?.jeonse||0}</span></div>
-            <div class="tab" data-type="월세">월세 <span class="cnt">${c.tradeCount?.monthly||0}</span></div>
-          </div>
-          ${trades.length ? `
-            <div class="tbl-wrap"><table>
-              <thead><tr><th>유형</th><th>가격</th><th>평형</th><th>층</th><th>동</th><th>계약일</th><th>등록일</th></tr></thead>
-              <tbody>${trades.map(t => {
-                const c2 = cls(t.tradeType);
-                return `<tr data-type="${h(t.tradeType)}" class="${t.isCancelled?'cancelled':''}">
-                  <td><span class="tag ${c2}">${h(t.tradeType)}</span></td>
-                  <td class="price-c ${c2}">${h(t.priceFormatted)}</td>
-                  <td>${h(t.areaType)}평</td>
-                  <td>${t.floor||'—'}층</td>
-                  <td>${h(t.dong)||'—'}</td>
-                  <td style="font-size:.72rem;color:var(--text-3)">${h(t.dateFormatted)}</td>
-                  <td style="font-size:.72rem;color:var(--text-3)">${fmtDate(t.dateAdded)}</td>
-                </tr>`;
-              }).join('')}</tbody>
-            </table></div>
-          ` : '<div class="empty">실거래 내역 없음</div>'}
-        </div>
-      `;
+    function applyFilters(section) {
+      const type = section.querySelector('.tab.active')?.dataset.type || 'all';
+      const area = section.querySelector('.area-btn.active')?.dataset.area || 'all';
+      section.querySelectorAll('tbody tr').forEach(tr => {
+        const tMatch = type === 'all' || tr.dataset.type === type;
+        const aMatch = area === 'all' || tr.dataset.area === area;
+        tr.style.display = (tMatch && aMatch) ? '' : 'none';
+      });
     }
 
     async function load() {
       try {
-        const r = await fetch('./data.json?t=' + Date.now());
-        if (!r.ok) throw new Error(r.status);
+        const r = await fetch('./data.json?t='+Date.now());
         render(await r.json());
-      } catch(e) {
-        $('#dot').classList.add('off');
-        $('#st').textContent = '로드 실패';
-      }
+      } catch { document.getElementById('dot').classList.add('off'); }
     }
-
     load();
     setInterval(load, 300000);
   </script>
