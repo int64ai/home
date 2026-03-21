@@ -175,10 +175,19 @@ function dir(d){return DIR[d]||d||''}
 /* ── 시간 ── */
 function fmtKST(iso){
   if(!iso)return'—';
-  const d=new Date(iso);
-  const k=new Date(d.getTime()+9*36e5);
-  const pad=n=>String(n).padStart(2,'0');
-  return `${k.getFullYear()}.${pad(k.getMonth()+1)}.${pad(k.getDate())} ${pad(k.getHours())}:${pad(k.getMinutes())}`;
+  const d = new Date(iso);
+  if (Number.isNaN(d.getTime())) return '—';
+  const parts = new Intl.DateTimeFormat('ko-KR', {
+    timeZone: 'Asia/Seoul',
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: false
+  }).formatToParts(d);
+  const pick = t => parts.find(p => p.type === t)?.value || '00';
+  return `${pick('year')}.${pick('month')}.${pick('day')} ${pick('hour')}:${pick('minute')}`;
 }
 function ago(iso){
   if(!iso)return'';
