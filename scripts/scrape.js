@@ -186,15 +186,20 @@ async function scrapeViaIntercept(page, complexNo, tradeType) {
   return [];
 }
 
-function fmtPrice(n) {
-  if (!n) return '';
-  const v = typeof n === 'string' ? Number(n.replace(/,/g, '')) : n;
+// priceRaw = 원(won) 단위. 600000000 = 6억원
+function fmtPrice(won) {
+  if (!won) return '';
+  const v = typeof won === 'string' ? Number(won.replace(/,/g, '')) : won;
   if (isNaN(v) || v === 0) return '';
-  const e = Math.floor(v / 10000), r = v % 10000;
-  if (e > 0 && r > 0) return `${e}억 ${r.toLocaleString()}`;
-  if (e > 0) return `${e}억`;
-  return `${v.toLocaleString()}만`;
+  const eok = Math.floor(v / 100000000);
+  const man = Math.floor((v % 100000000) / 10000);
+  if (eok > 0 && man > 0) return `${eok}억 ${man.toLocaleString()}만`;
+  if (eok > 0) return `${eok}억`;
+  if (man > 0) return `${man.toLocaleString()}만`;
+  return `${v.toLocaleString()}원`;
 }
+
+const DIR_MAP = { NN:'북', SS:'남', EE:'동', WW:'서', NE:'북동', NW:'북서', SE:'남동', SW:'남서', NS:'남북', EW:'동서' };
 
 function parseArticle(a, tradeTypeName) {
   const isSale = tradeTypeName === '매매';
@@ -211,7 +216,7 @@ function parseArticle(a, tradeTypeName) {
     dong: a.buildingName || a.dongName || '',
     area: a.exclusiveArea || '',
     pyeong: a.exclusiveArea ? Math.round(Number(a.exclusiveArea) / 3.3058) : '',
-    direction: a.direction || '',
+    direction: DIR_MAP[a.direction] || a.direction || '',
     description: a.articleFeatureDescription || '',
     realtor: a.realtorName || '',
     cpName: a.cpName || '',
