@@ -1,39 +1,73 @@
 {
-  "updatedAt": "2026-03-21T06:31:14.412Z",
-  "source": "naver_land",
-  "blocked": false,
+  "updatedAt": "2026-03-21T06:51:53.416Z",
+  "source": "asil",
+  "sourceLabel": "아실 (네이버 부동산 동일 데이터)",
   "complexes": [
     {
       "name": "상록마을3단지우성",
       "alias": "상록우성",
-      "complexNo": "2645",
+      "bldcode": "6254",
       "address": "성남시 분당구 내정로 55 (정자동)",
       "totalUnits": 1762,
       "builtYear": "1997",
-      "pyeongs": [],
-      "articles": [],
+      "articles": [
+        {
+          "tradeType": "매매",
+          "articleId": "35891858",
+          "price": "27억 5,000",
+          "priceRaw": 275000,
+          "rent": "",
+          "rentRaw": 0,
+          "floor": "1",
+          "totalFloor": "19",
+          "dong": "323",
+          "exclusiveArea": "129.72",
+          "supplyArea": "153.81",
+          "pyeong": 39,
+          "direction": "",
+          "description": "남향 올수리 하시입주 급매",
+          "realtor": "서판교센트럴공인중개사사무소",
+          "realtorTel": "031-702-2200",
+          "confirmDate": "26.03.20",
+          "buildingName": "상록우성"
+        }
+      ],
       "count": {
-        "total": 0,
+        "total": 1,
         "jeonse": 0,
-        "sale": 0
+        "sale": 1
       },
-      "scrapedAt": "2026-03-21T06:29:53.804Z"
+      "scrapedAt": "2026-03-21T06:51:47.150Z"
     },
     {
-      "name": "상록마을1,2단지라이프",
-      "alias": "상록라이프",
-      "complexNo": "2623",
+      "name": "상록마을1차라이프",
+      "alias": "상록라이프1차",
+      "bldcode": "6252",
       "address": "성남시 분당구 정자로 56 (정자동)",
       "totalUnits": 466,
       "builtYear": "1997",
-      "pyeongs": [],
       "articles": [],
       "count": {
         "total": 0,
         "jeonse": 0,
         "sale": 0
       },
-      "scrapedAt": "2026-03-21T06:31:12.911Z"
+      "scrapedAt": "2026-03-21T06:51:49.783Z"
+    },
+    {
+      "name": "상록마을2차라이프",
+      "alias": "상록라이프2차",
+      "bldcode": "50356",
+      "address": "성남시 분당구 정자로 56 (정자동)",
+      "totalUnits": 0,
+      "builtYear": "1997",
+      "articles": [],
+      "count": {
+        "total": 0,
+        "jeonse": 0,
+        "sale": 0
+      },
+      "scrapedAt": "2026-03-21T06:51:52.415Z"
     }
   ]
 }

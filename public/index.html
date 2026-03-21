@@ -24,15 +24,14 @@
     .dot.off{background:#ef4444;animation:none}
     @keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
     .container{max-width:1020px;margin:0 auto;padding:0 1.5rem 4rem}
-    .cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:1rem;margin-bottom:2.5rem}
+    .summary{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:1rem;margin-bottom:2.5rem}
     .card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:1.3rem 1.5rem;box-shadow:var(--shadow)}
     .card .lbl{font-size:.85rem;font-weight:600;color:var(--text-3);margin-bottom:.25rem}
     .card .val{font-size:2rem;font-weight:800;letter-spacing:-.03em}
     .card .detail{font-size:.88rem;color:var(--text-2);margin-top:.15rem}
-    .blocked-banner{background:#fef2f2;border:1px solid #fecaca;border-radius:var(--radius);padding:1rem 1.5rem;margin-bottom:2rem;color:#991b1b;font-size:.92rem;text-align:center}
     .section{margin-bottom:3rem}
     .section-head{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:1rem;padding-bottom:.7rem;border-bottom:2.5px solid var(--text-1)}
-    .section-title{font-size:1.5rem;font-weight:800;letter-spacing:-.02em}
+    .section-title{font-size:1.5rem;font-weight:800}
     .section-meta{font-size:.88rem;color:var(--text-2)}
     .info-row{display:flex;flex-wrap:wrap;gap:.5rem 1.4rem;margin-bottom:1.2rem;font-size:.92rem;color:var(--text-2)}
     .info-row span::before{content:'·';margin-right:.4rem;color:var(--text-3)}
@@ -53,13 +52,11 @@
     .tag.sale{background:#fef2f2;color:var(--sale)}.tag.jeonse{background:#eff6ff;color:var(--jeonse)}
     .price-c{font-weight:800;font-size:1rem;font-variant-numeric:tabular-nums}
     .price-c.sale{color:var(--sale)}.price-c.jeonse{color:var(--jeonse)}
-    .desc{font-size:.82rem;color:var(--text-3);max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+    .desc{font-size:.85rem;color:var(--text-2);max-width:240px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
     .muted{color:var(--text-3)}
     .empty{text-align:center;padding:3rem;color:var(--text-3);font-size:1rem}
     .footer{text-align:center;padding:2rem;font-size:.82rem;color:var(--text-3);border-top:1px solid var(--border)}
     .footer a{color:var(--text-2);text-decoration:none}
-    .naver-link{display:inline-block;margin-top:.3rem;font-size:.82rem;color:var(--jeonse);text-decoration:none}
-    .naver-link:hover{text-decoration:underline}
     @media(max-width:640px){html{font-size:15px}.container{padding:0 1rem 3rem}.tbl-wrap{overflow-x:auto}table{min-width:650px}}
   </style>
 </head>
@@ -70,12 +67,11 @@
     <div class="status"><span class="dot" id="dot"></span><span id="st">로딩 중...</span></div>
   </div>
   <div class="container">
-    <div id="banner"></div>
-    <div class="cards" id="cards"></div>
+    <div class="summary" id="summary"></div>
     <div id="content"><div class="empty">데이터 로딩 중...</div></div>
   </div>
   <div class="footer">
-    출처: <a href="https://fin.land.naver.com" target="_blank">네이버 부동산</a> · 30분 자동 업데이트 · 참고용
+    데이터: <a href="https://asil.kr" target="_blank">아실</a> (네이버 부동산 동일 KISO 데이터) · 30분 자동 업데이트 · 참고용
   </div>
   <script>
     const h = s => { const d = document.createElement('div'); d.textContent = s||''; return d.innerHTML; };
@@ -85,112 +81,92 @@
       return `${dt.getFullYear()}.${String(dt.getMonth()+1).padStart(2,'0')}.${String(dt.getDate()).padStart(2,'0')} ${String(dt.getHours()).padStart(2,'0')}:${String(dt.getMinutes()).padStart(2,'0')}`;
     };
     const ago = d => {
-      if(!d) return '';
-      const m=Math.floor((Date.now()-new Date(d).getTime())/60000);
-      if(m<60) return m+'분 전';
-      const hr=Math.floor(m/60);
-      if(hr<24) return hr+'시간 전';
-      return Math.floor(hr/24)+'일 전';
+      if(!d)return'';const m=Math.floor((Date.now()-new Date(d).getTime())/60000);
+      if(m<60)return m+'분 전';const hr=Math.floor(m/60);if(hr<24)return hr+'시간 전';return Math.floor(hr/24)+'일 전';
     };
 
     function render(data) {
       if (!data.updatedAt) {
         document.getElementById('dot').classList.add('off');
         document.getElementById('st').textContent = '데이터 대기 중';
-        document.getElementById('content').innerHTML = '<div class="empty">GitHub Actions 첫 실행 대기 중</div>';
         return;
       }
       document.getElementById('dot').classList.remove('off');
       document.getElementById('st').textContent = `${fmtKST(data.updatedAt)} KST (${ago(data.updatedAt)})`;
 
-      if (data.blocked) {
-        document.getElementById('banner').innerHTML = '<div class="blocked-banner">⚠ 네이버 API 접근이 일시 차단되었습니다. 다음 업데이트에서 자동 재시도합니다.</div>';
-      }
-
       const cx = data.complexes || [];
-      const totalAll = cx.reduce((s,c) => s+(c.count?.total||0), 0);
-      const totalJeonse = cx.reduce((s,c) => s+(c.count?.jeonse||0), 0);
-      const totalSale = cx.reduce((s,c) => s+(c.count?.sale||0), 0);
+      const totalAll = cx.reduce((s,c)=>s+(c.count?.total||0),0);
+      const totalJ = cx.reduce((s,c)=>s+(c.count?.jeonse||0),0);
+      const totalS = cx.reduce((s,c)=>s+(c.count?.sale||0),0);
 
-      document.getElementById('cards').innerHTML = `
+      document.getElementById('summary').innerHTML = `
         <div class="card"><div class="lbl">총 매물</div><div class="val">${totalAll}건</div><div class="detail">${cx.length}개 단지</div></div>
-        <div class="card"><div class="lbl" style="color:var(--jeonse)">전세</div><div class="val" style="color:var(--jeonse)">${totalJeonse}건</div></div>
-        <div class="card"><div class="lbl" style="color:var(--sale)">매매</div><div class="val" style="color:var(--sale)">${totalSale}건</div></div>
+        <div class="card"><div class="lbl" style="color:var(--jeonse)">전세</div><div class="val" style="color:var(--jeonse)">${totalJ}건</div></div>
+        <div class="card"><div class="lbl" style="color:var(--sale)">매매</div><div class="val" style="color:var(--sale)">${totalS}건</div></div>
       `;
-
       document.getElementById('content').innerHTML = cx.map(renderSection).join('');
       initFilters();
       document.querySelectorAll('.section').forEach(applyFilters);
     }
 
     function renderSection(c) {
-      const articles = c.articles || [];
-      const info = [c.address, c.totalUnits+'세대', c.builtYear+' 준공'];
+      const arts = c.articles || [];
+      const info = [c.address, c.totalUnits?c.totalUnits+'세대':'', c.builtYear+' 준공'].filter(Boolean);
 
       return `
-      <div class="section" data-no="${c.complexNo}">
+      <div class="section">
         <div class="section-head">
           <span class="section-title">${h(c.alias)}</span>
           <span class="section-meta">${h(c.name)}</span>
         </div>
-        <div class="info-row">
-          ${info.map(i=>`<span>${h(i)}</span>`).join('')}
-          <a class="naver-link" href="https://fin.land.naver.com/complexes/${c.complexNo}" target="_blank">네이버 부동산에서 보기 →</a>
-        </div>
+        <div class="info-row">${info.map(i=>`<span>${h(i)}</span>`).join('')}</div>
         <div class="filter-row trade-tabs">
-          <div class="pill active jeonse" data-type="전세">전세 ${c.count?.jeonse||0}</div>
+          <div class="pill active all" data-type="all">전체 ${arts.length}</div>
+          <div class="pill jeonse" data-type="전세">전세 ${c.count?.jeonse||0}</div>
           <div class="pill sale" data-type="매매">매매 ${c.count?.sale||0}</div>
-          <div class="pill all" data-type="all">전체 ${articles.length}</div>
         </div>
-        ${articles.length?`
+        ${arts.length?`
         <div class="tbl-wrap"><table><thead><tr>
-          <th>유형</th><th>가격</th><th>면적</th><th>층</th><th>동</th><th>방향</th><th>확인일</th><th>특징</th>
+          <th>유형</th><th>가격</th><th>면적</th><th>층</th><th>동</th><th>등록일</th><th>특징</th><th>중개사</th>
         </tr></thead><tbody>
-          ${articles.map(a=>{
-            const cl = a.tradeType==='매매'?'sale':'jeonse';
+          ${arts.map(a=>{
+            const cl=a.tradeType==='매매'?'sale':'jeonse';
+            const area = a.pyeong ? a.pyeong+'평' : (a.exclusiveArea ? a.exclusiveArea+'㎡' : '—');
+            const flr = a.floor ? a.floor+'층' + (a.totalFloor ? '/'+a.totalFloor : '') : '—';
             return `<tr data-type="${h(a.tradeType)}">
               <td><span class="tag ${cl}">${h(a.tradeType)}</span></td>
-              <td class="price-c ${cl}">${h(a.price)}</td>
-              <td>${a.pyeongName?h(a.pyeongName)+'평':h(a.area)+'㎡'}</td>
-              <td>${h(a.floor)||'—'}</td>
-              <td>${a.dong?h(a.dong):'—'}</td>
-              <td class="muted">${h(a.direction)||'—'}</td>
-              <td class="muted">${h(a.confirmDate)||'—'}</td>
+              <td class="price-c ${cl}">${h(a.price)}${a.rent?' / '+h(a.rent):''}</td>
+              <td>${area}</td>
+              <td>${flr}</td>
+              <td>${a.dong?h(a.dong)+'동':'—'}</td>
+              <td class="muted">${h(a.confirmDate)}</td>
               <td class="desc" title="${h(a.description)}">${h(a.description)||'—'}</td>
+              <td class="muted" style="font-size:.82rem">${h(a.realtor)}</td>
             </tr>`;
           }).join('')}
         </tbody></table></div>
-        `:'<div class="empty">현재 등록된 매물이 없거나 데이터 수집 대기 중</div>'}
+        `:'<div class="empty">현재 등록된 매물 없음</div>'}
       </div>`;
     }
 
-    function initFilters() {
-      document.querySelectorAll('.trade-tabs').forEach(tabs => {
-        tabs.querySelectorAll('.pill').forEach(pill => {
-          pill.onclick = () => {
-            tabs.querySelectorAll('.pill').forEach(p=>p.classList.remove('active'));
-            pill.classList.add('active');
-            applyFilters(pill.closest('.section'));
-          };
+    function initFilters(){
+      document.querySelectorAll('.trade-tabs').forEach(tabs=>{
+        tabs.querySelectorAll('.pill').forEach(p=>{
+          p.onclick=()=>{tabs.querySelectorAll('.pill').forEach(x=>x.classList.remove('active'));p.classList.add('active');applyFilters(p.closest('.section'));};
         });
       });
     }
-
-    function applyFilters(section) {
-      const type = section.querySelector('.pill.active')?.dataset.type || 'all';
-      section.querySelectorAll('tbody tr').forEach(tr => {
-        tr.style.display = (type === 'all' || tr.dataset.type === type) ? '' : 'none';
-      });
+    function applyFilters(s){
+      const t=s.querySelector('.pill.active')?.dataset.type||'all';
+      s.querySelectorAll('tbody tr').forEach(tr=>{tr.style.display=(t==='all'||tr.dataset.type===t)?'':'none';});
     }
 
-    async function load() {
-      try {
-        const r = await fetch('./data.json?t='+Date.now());
-        render(await r.json());
-      } catch { document.getElementById('dot').classList.add('off'); }
+    async function load(){
+      try{const r=await fetch('./data.json?t='+Date.now());render(await r.json());}
+      catch{document.getElementById('dot').classList.add('off');}
     }
     load();
-    setInterval(load, 300000);
+    setInterval(load,300000);
   </script>
 </body>
 </html>
