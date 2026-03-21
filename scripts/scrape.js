@@ -15,8 +15,8 @@ const path = require('path');
 
 // ─── 설정 ───────────────────────────────────────────────
 const TARGET_COMPLEXES = [
-  { keyword: '상록마을우성', alias: '상록우성 (3단지)', region: '분당구 정자동', fallbackKeywords: ['상록마을3단지우성', '상록우성 정자동'] },
-  { keyword: '상록마을라이프', alias: '상록라이프 (1,2단지)', region: '분당구 정자동', fallbackKeywords: ['상록마을1,2단지라이프', '상록라이프 정자동'] }
+  { keyword: '상록마을우성', alias: '상록우성 (3단지)', complexNumber: '2645', region: '분당구 정자동' },
+  { keyword: '상록마을라이프', alias: '상록라이프 (1,2단지)', complexNumber: '2623', region: '분당구 정자동' }
 ];
 
 const DATA_PATH = path.join(__dirname, '..', 'public', 'data.json');
@@ -107,19 +107,17 @@ async function main() {
 // ─── 단지별 스크래핑 ────────────────────────────────────
 async function scrapeComplex(page, context, target) {
   try {
-    // Step 1: 검색으로 단지 번호 찾기 (fallback 키워드 포함)
-    let complexInfo = await searchComplex(page, target.keyword);
-    if (!complexInfo && target.fallbackKeywords) {
-      for (const fb of target.fallbackKeywords) {
-        log(`  fallback 검색: ${fb}`);
-        complexInfo = await searchComplex(page, fb);
-        if (complexInfo) break;
-        await sleep(1500);
+    // Step 1: 단지 번호가 설정에 있으면 검색 스킵
+    let complexInfo;
+    if (target.complexNumber) {
+      log(`  단지 번호 직접 사용: ${target.complexNumber}`);
+      complexInfo = { complexNumber: target.complexNumber, complexName: target.keyword };
+    } else {
+      complexInfo = await searchComplex(page, target.keyword);
+      if (!complexInfo) {
+        log(`  검색 결과 없음: ${target.keyword}`);
+        return null;
       }
-    }
-    if (!complexInfo) {
-      log(`  검색 결과 없음: ${target.keyword}`);
-      return null;
     }
     log(`  단지 발견: ${complexInfo.complexName} (No.${complexInfo.complexNumber})`);
 
@@ -255,11 +253,12 @@ async function getComplexDetail(page, complexNumber) {
   log(`  단지 상세 조회: ${complexNumber}`);
 
   const result = await page.evaluate(async (cn) => {
-    // 여러 가능한 엔드포인트 시도
     const endpoints = [
       `/front-api/v1/complex/detail?complexNumber=${cn}`,
       `/front-api/v1/complex/${cn}`,
-      `/front-api/v1/complex/info?complexNumber=${cn}`
+      `/front-api/v1/complex/info?complexNumber=${cn}`,
+      `/front-api/v1/complex/complexDetail?complexNumber=${cn}`,
+      `/front-api/v1/complex/overview?complexNumber=${cn}`
     ];
 
     for (const ep of endpoints) {
@@ -287,11 +286,12 @@ async function getArticles(page, complexNumber) {
   log(`  매물 목록 조회: ${complexNumber}`);
 
   const result = await page.evaluate(async (cn) => {
-    // 여러 가능한 엔드포인트 시도
     const endpoints = [
       `/front-api/v1/article/list?complexNumber=${cn}&tradeType=&page=0&size=50`,
       `/front-api/v1/complex/${cn}/articles?page=0&size=50`,
-      `/front-api/v1/article/complexArticles?complexNumber=${cn}&page=0&size=50`
+      `/front-api/v1/article/complexArticles?complexNumber=${cn}&page=0&size=50`,
+      `/front-api/v1/article/articleList?complexNumber=${cn}&orderType=prc&page=0&size=50`,
+      `/front-api/v1/article/articles?complexNumber=${cn}&realEstateType=APT&page=0&size=50`
     ];
 
     for (const ep of endpoints) {
@@ -332,31 +332,71 @@ async function getArticles(page, complexNumber) {
 
   // API 실패 시 DOM에서 직접 추출
   log('  매물 API 실패, DOM 스크래핑 시도...');
-  return await scrapeArticlesFromDOM(page);
+  return await scrapeArticlesFromDOM(page, complexNumber);
 }
 
 // ─── DOM 기반 매물 추출 ─────────────────────────────────
-async function scrapeArticlesFromDOM(page) {
-  return await page.evaluate(() => {
-    const items = document.querySelectorAll('[class*="ArticleItem"], [class*="article-item"], [class*="list-item"]');
-    return Array.from(items).map(item => {
-      const getText = (selectors) => {
-        for (const s of selectors) {
-          const el = item.querySelector(s);
-          if (el) return el.textContent?.trim();
-        }
-        return '';
-      };
+async function scrapeArticlesFromDOM(page, complexNumber) {
+  if (!complexNumber) return [];
 
-      return {
-        tradeType: getText(['[class*="trade-type"]', '[class*="TradeType"]', '[class*="type"]']),
-        price: getText(['[class*="price"]', '[class*="Price"]', '[class*="amount"]']),
-        area: getText(['[class*="area"]', '[class*="Area"]', '[class*="size"]']),
-        floor: getText(['[class*="floor"]', '[class*="Floor"]']),
-        description: getText(['[class*="desc"]', '[class*="Desc"]', '[class*="feature"]'])
-      };
+  // 단지 페이지로 직접 이동하여 매물 패널 열기
+  log('  단지 페이지 직접 이동 시도...');
+  try {
+    // 지도에서 단지 클릭 후 매물 패널이 열리는 URL 패턴 시도
+    await page.goto(`${BASE_URL}/map?complexNumber=${complexNumber}`, {
+      waitUntil: 'networkidle', timeout: 20000
     });
-  });
+    await sleep(3000);
+
+    // 매물 목록 패널에서 데이터 추출
+    const articles = await page.evaluate(() => {
+      const items = document.querySelectorAll(
+        '[class*="ArticleItem"], [class*="article-item"], [class*="list-item"], ' +
+        '[class*="ArticleListItem"], [class*="SaleItem"], [class*="article_item"]'
+      );
+      
+      if (items.length === 0) {
+        // 대안: 전체 텍스트에서 매물 패턴 추출
+        const bodyText = document.body.innerText;
+        const lines = bodyText.split('\n').filter(l => l.trim());
+        
+        // 가격 패턴 찾기 (ex: "매매 6억 2,000", "전세 3억")
+        const pricePattern = /(매매|전세|월세)\s*(\d+억?\s*[\d,]*만?)/g;
+        const found = [];
+        for (const line of lines) {
+          const matches = line.matchAll(pricePattern);
+          for (const m of matches) {
+            found.push({ tradeType: m[1], price: m[2], description: line.trim().substring(0, 100) });
+          }
+        }
+        return found;
+      }
+
+      return Array.from(items).map(item => {
+        const getText = (selectors) => {
+          for (const s of selectors) {
+            const el = item.querySelector(s);
+            if (el) return el.textContent?.trim();
+          }
+          return '';
+        };
+
+        return {
+          tradeType: getText(['[class*="trade-type"]', '[class*="TradeType"]', '[class*="type"]']),
+          price: getText(['[class*="price"]', '[class*="Price"]', '[class*="amount"]']),
+          area: getText(['[class*="area"]', '[class*="Area"]', '[class*="size"]']),
+          floor: getText(['[class*="floor"]', '[class*="Floor"]']),
+          description: getText(['[class*="desc"]', '[class*="Desc"]', '[class*="feature"]'])
+        };
+      });
+    });
+
+    log(`  DOM에서 ${articles.length}개 매물 추출`);
+    return articles;
+  } catch (err) {
+    log(`  DOM 스크래핑 실패: ${err.message}`);
+    return [];
+  }
 }
 
 // ─── 실행 ───────────────────────────────────────────────
