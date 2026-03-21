@@ -1,67 +1,199 @@
+const { chromium } = require('playwright');
 const fs = require('fs');
 const path = require('path');
 
 const DATA_PATH = path.join(__dirname, '..', 'public', 'data.json');
-const API_BASE = 'https://fin.land.naver.com/front-api/v1';
 
 const COMPLEXES = [
   { no: '2645', name: '상록마을3단지우성', alias: '상록우성' },
   { no: '2623', name: '상록마을1,2단지라이프', alias: '상록라이프' }
 ];
 
-// B1=전세, A1=매매
 const TRADE_TYPES = [
-  { code: 'B1', name: '전세' },
-  { code: 'A1', name: '매매' }
+  { code: 'B1', name: '전세', tab: 'tradeType=B1' },
+  { code: 'A1', name: '매매', tab: 'tradeType=A1' }
 ];
-
-const HEADERS = {
-  'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/134.0.0.0 Safari/537.36',
-  'Accept': 'application/json, text/plain, */*',
-  'Accept-Language': 'ko-KR,ko;q=0.9',
-  'Referer': 'https://fin.land.naver.com/'
-};
-const MAX_429_RETRIES = 10;
 
 function log(msg) { console.log(`[${new Date().toISOString()}] ${msg}`); }
 function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
 
+function normalizeRawArticle(raw) {
+  const src = raw?.representativeArticleInfo || raw || {};
+  const priceInfo = src.priceInfo || {};
+  const articleDetail = src.articleDetail || {};
+  const brokerInfo = src.brokerInfo || {};
+  const spaceInfo = src.spaceInfo || {};
+  const verificationInfo = src.verificationInfo || {};
+
+  return {
+    articleNumber: src.articleNumber || '',
+    dealPrice: priceInfo.dealPrice ?? src.dealPrice ?? 0,
+    warrantyAmount: priceInfo.warrantyPrice ?? src.warrantyAmount ?? 0,
+    rentAmount: priceInfo.rentPrice ?? src.rentAmount ?? 0,
+    floorInfo: articleDetail.floorInfo || src.floorInfo || '',
+    buildingName: src.complexName || src.buildingName || '',
+    dongName: src.dongName || '',
+    exclusiveArea: spaceInfo.exclusiveSpace ?? src.exclusiveArea ?? '',
+    direction: articleDetail.direction || src.direction || '',
+    articleFeatureDescription: articleDetail.articleFeatureDescription || src.articleFeatureDescription || '',
+    realtorName: brokerInfo.brokerageName || src.realtorName || '',
+    cpName: brokerInfo.brokerName || src.cpName || '',
+    articleConfirmYmd: verificationInfo.articleConfirmDate || src.articleConfirmYmd || '',
+    tagList: src.tagList || []
+  };
+}
+
+function extractArticlesFromPayload(payload) {
+  if (Array.isArray(payload?.result?.list)) {
+    return payload.result.list.map(normalizeRawArticle);
+  }
+  if (Array.isArray(payload?.result)) {
+    return payload.result.map(normalizeRawArticle);
+  }
+  if (Array.isArray(payload)) {
+    return payload.map(normalizeRawArticle);
+  }
+  return [];
+}
+
+async function scrapeComplex(page, complexNo, tradeType) {
+  const url = `https://fin.land.naver.com/complexes/${complexNo}?tab=article&${tradeType.tab}`;
+  log(`  ${tradeType.name}: ${url}`);
+
+  await page.goto(url, { waitUntil: 'networkidle', timeout: 30000 });
+  await sleep(2000);
+
+  try {
+    await page.waitForSelector('[class*="article"]', { timeout: 10000 });
+  } catch {
+    log('  매물 목록 미발견 — 0건이거나 셀렉터 변경');
+  }
+
+  let prevCount = 0;
+  for (let i = 0; i < 10; i++) {
+    await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight));
+    await sleep(1000);
+    const count = await page.evaluate(() =>
+      document.querySelectorAll('[class*="ItemInner"], [class*="articleItem"], [class*="item_article"]').length
+    );
+    if (count === prevCount && count > 0) break;
+    prevCount = count;
+  }
+
+  const articles = await page.evaluate(() => {
+    const items = [];
+    const cards = document.querySelectorAll(
+      '[class*="item_article"], [class*="ArticleItem"], [class*="articleRow"], article[class*="item"]'
+    );
+
+    if (cards.length === 0) {
+      const nextData = document.getElementById('__NEXT_DATA__');
+      if (nextData) {
+        try {
+          const data = JSON.parse(nextData.textContent);
+          return { source: 'nextdata', raw: JSON.stringify(data).slice(0, 5000) };
+        } catch {
+          return { source: 'empty', cards: 0 };
+        }
+      }
+      return { source: 'empty', cards: 0 };
+    }
+
+    cards.forEach(card => {
+      const getAllText = () => card.textContent?.trim() || '';
+      items.push({
+        text: getAllText().slice(0, 500),
+        html: card.innerHTML.slice(0, 1000)
+      });
+    });
+
+    return { source: 'dom', items };
+  });
+
+  return articles;
+}
+
+async function scrapeViaIntercept(page, complexNo, tradeType) {
+  const url = `https://fin.land.naver.com/complexes/${complexNo}?tab=article&${tradeType.tab}`;
+  log(`  ${tradeType.name} (intercept): ${url}`);
+  const apiData = [];
+
+  const onResponse = async response => {
+    const reqUrl = response.url();
+    if (reqUrl.includes('/complex/article/list')) {
+      try {
+        if (response.status() !== 200) {
+          log(`  ⚠ 인터셉트 상태코드: ${response.status()}`);
+          return;
+        }
+        const json = await response.json();
+        const extracted = extractArticlesFromPayload(json);
+        if (extracted.length > 0) {
+          log(`  ✓ API 인터셉트: ${extracted.length}건`);
+          apiData.push(...extracted);
+        }
+      } catch {
+      }
+    }
+  };
+
+  page.on('response', onResponse);
+  try {
+    await page.goto(url, { waitUntil: 'networkidle', timeout: 45000 });
+    await sleep(2500);
+
+    for (let i = 0; i < 5; i++) {
+      await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight));
+      await sleep(2000);
+    }
+  } finally {
+    page.off('response', onResponse);
+  }
+
+  const unique = [];
+  const seen = new Set();
+  for (const item of apiData) {
+    const key = item.articleNumber || JSON.stringify(item);
+    if (seen.has(key)) continue;
+    seen.add(key);
+    unique.push(item);
+  }
+  if (unique.length > 0) {
+    return unique;
+  }
+
+  log('  ⚠ 인터셉트 데이터 없음, DOM fallback 시도');
+  const dom = await scrapeComplex(page, complexNo, tradeType);
+  if (dom?.source === 'dom' && Array.isArray(dom.items) && dom.items.length > 0) {
+    return dom.items.map((d, idx) => ({
+      articleNumber: `DOM-${complexNo}-${tradeType.code}-${idx + 1}`,
+      dealPrice: 0,
+      warrantyAmount: 0,
+      rentAmount: 0,
+      floorInfo: '',
+      buildingName: '',
+      dongName: '',
+      exclusiveArea: '',
+      direction: '',
+      articleFeatureDescription: d.text || '',
+      realtorName: '',
+      cpName: '',
+      articleConfirmYmd: '',
+      tagList: []
+    }));
+  }
+
+  return [];
+}
+
 function fmtPrice(n) {
   if (!n) return '';
   const v = typeof n === 'string' ? Number(n.replace(/,/g, '')) : n;
+  if (isNaN(v) || v === 0) return '';
   const e = Math.floor(v / 10000), r = v % 10000;
   if (e > 0 && r > 0) return `${e}억 ${r.toLocaleString()}`;
   if (e > 0) return `${e}억`;
   return `${v.toLocaleString()}만`;
-}
-
-async function api(endpoint, retry = 0) {
-  const url = `${API_BASE}${endpoint}`;
-  const res = await fetch(url, { headers: HEADERS, signal: AbortSignal.timeout(15000) });
-  if (res.status === 429) {
-    if (retry >= MAX_429_RETRIES) {
-      throw new Error(`429 retry limit exceeded: ${endpoint}`);
-    }
-    log(`  ⚠ 429 — 2초 대기 후 재시도 (${retry + 1}/${MAX_429_RETRIES})`);
-    await sleep(2000);
-    return api(endpoint, retry + 1);
-  }
-  if (!res.ok) { log(`  ⚠ ${res.status}: ${endpoint}`); return null; }
-  const data = await res.json();
-  return data.result !== undefined ? data.result : data;
-}
-
-async function getArticles(complexNo, tradeType, maxPages = 5) {
-  const articles = [];
-  for (let page = 1; page <= maxPages; page++) {
-    const data = await api(`/complex/article/list?complexNumber=${complexNo}&tradeType=${tradeType}&page=${page}&sizePerPage=20`);
-    if (!data || !Array.isArray(data) || data.length === 0) break;
-    articles.push(...data);
-    log(`    p${page}: ${data.length}건`);
-    if (data.length < 20) break;
-    await sleep(1500);
-  }
-  return articles;
 }
 
 function parseArticle(a, tradeTypeName) {
@@ -89,37 +221,51 @@ function parseArticle(a, tradeTypeName) {
 }
 
 async function main() {
-  log('매물 크롤러 시작 (네이버 부동산 API)');
+  log('매물 크롤러 시작 (Playwright 브라우저 방식)');
+
+  const browser = await chromium.launch({
+    headless: true,
+    args: ['--no-sandbox', '--disable-dev-shm-usage', '--disable-blink-features=AutomationControlled']
+  });
+
+  const context = await browser.newContext({
+    userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/134.0.0.0 Safari/537.36',
+    locale: 'ko-KR',
+    viewport: { width: 1920, height: 1080 }
+  });
+
+  const page = await context.newPage();
+  await page.addInitScript(() => {
+    Object.defineProperty(navigator, 'webdriver', { get: () => undefined });
+  });
   const results = [];
 
   for (const cx of COMPLEXES) {
     log(`\n━━━ ${cx.alias} (${cx.no}) ━━━`);
-    // 평형 목록
-    const pyeongs = await api(`/complex/pyeongList?complexNumber=${cx.no}`) || [];
-    await sleep(1500);
-
     const allArticles = [];
+
     for (const tt of TRADE_TYPES) {
-      log(`  ${tt.name} 매물 조회...`);
-      const raw = await getArticles(cx.no, tt.code);
-      allArticles.push(...raw.map(a => parseArticle(a, tt.name)));
-      await sleep(2000);
+      const rawArticles = await scrapeViaIntercept(page, cx.no, tt);
+      const parsed = rawArticles.map(a => parseArticle(a, tt.name));
+      allArticles.push(...parsed);
+      log(`  ${tt.name}: ${parsed.length}건`);
+      await sleep(3000);
     }
 
     const jeonse = allArticles.filter(a => a.tradeType === '전세');
     const sale = allArticles.filter(a => a.tradeType === '매매');
+
     results.push({
       name: cx.name, alias: cx.alias, complexNo: cx.no,
-      pyeongs: Array.isArray(pyeongs) ? pyeongs.map(p => ({
-        name: p.pyeongName, exclusive: p.exclusiveArea, supply: p.supplyArea
-      })) : [],
       articles: allArticles,
       count: { total: allArticles.length, jeonse: jeonse.length, sale: sale.length }
     });
 
     log(`✅ ${cx.alias}: ${allArticles.length}건 (전세 ${jeonse.length} / 매매 ${sale.length})`);
-    await sleep(2000);
+    await sleep(3000);
   }
+
+  await browser.close();
 
   const output = { updatedAt: new Date().toISOString(), source: 'naver_land', complexes: results };
   fs.mkdirSync(path.dirname(DATA_PATH), { recursive: true });
