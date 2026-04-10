@@ -35,6 +35,7 @@ function normalizeRawArticle(raw) {
     buildingName: src.complexName || src.buildingName || '',
     dongName: src.dongName || '',
     exclusiveArea: spaceInfo.exclusiveSpace ?? src.exclusiveArea ?? '',
+    supplyArea: spaceInfo.supplySpace ?? src.supplyArea ?? '',
     direction: articleDetail.direction || src.direction || '',
     articleFeatureDescription: articleDetail.articleFeatureDescription || src.articleFeatureDescription || '',
     realtorName: brokerInfo.brokerageName || src.realtorName || '',
@@ -177,6 +178,7 @@ async function scrapeViaIntercept(page, complexNo, tradeType) {
       buildingName: '',
       dongName: '',
       exclusiveArea: '',
+      supplyArea: '',
       direction: '',
       articleFeatureDescription: d.text || '',
       realtorName: '',
@@ -204,6 +206,28 @@ function fmtPrice(won) {
 
 const DIR_MAP = { NN:'북', SS:'남', EE:'동', WW:'서', NE:'북동', NW:'북서', SE:'남동', SW:'남서', NS:'남북', EW:'동서' };
 
+// 공급면적(㎡) → 관행 평형 매핑 (±1㎡ 허용)
+const PYEONG_TABLE = [
+  { supply: 66,  pyeong: 20 },
+  { supply: 74,  pyeong: 23 },
+  { supply: 86,  pyeong: 26 },
+  { supply: 92,  pyeong: 28 },
+  { supply: 103, pyeong: 32 },
+  { supply: 105, pyeong: 32 },
+  { supply: 122, pyeong: 38 },
+  { supply: 152, pyeong: 47 },
+  { supply: 153, pyeong: 47 },
+  { supply: 187, pyeong: 58 },
+  { supply: 188, pyeong: 58 },
+];
+
+function toPyeong(supplyArea) {
+  const m2 = Number(supplyArea);
+  if (!m2) return '';
+  const match = PYEONG_TABLE.find(e => Math.abs(m2 - e.supply) <= 1);
+  return match ? match.pyeong : Math.round(m2 / 3.265);
+}
+
 function parseArticle(a) {
   const tradeTypeCode = String(a.tradeType || '').toUpperCase();
   const isSale = tradeTypeCode === 'A1';
@@ -220,8 +244,8 @@ function parseArticle(a) {
     floor: a.floorInfo || '',
     complexName: a.buildingName || '',
     dong: a.dongName || a.buildingName || '',
-    area: a.exclusiveArea || '',
-    pyeong: a.exclusiveArea ? Math.round(Number(a.exclusiveArea) / 3.3058) : '',
+    area: a.supplyArea || a.exclusiveArea || '',
+    pyeong: toPyeong(a.supplyArea),
     direction: DIR_MAP[a.direction] || a.direction || '',
     description: a.articleFeatureDescription || '',
     realtor: a.realtorName || '',

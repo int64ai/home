@@ -33,7 +33,7 @@
     @keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
 
     /* ── Layout ── */
-    .container{max-width:1080px;margin:0 auto;padding:0 1.5rem 5rem}
+    .container{max-width:780px;margin:0 auto;padding:0 1.5rem 5rem}
 
     /* ── Summary Cards ── */
     .summary{display:grid;grid-template-columns:repeat(3,1fr);gap:.75rem;margin-bottom:2.5rem}
@@ -73,7 +73,7 @@
     tbody tr:hover td{background:#fdfcfa}
     th.col-area, td.col-area{min-width:96px}
     th.col-dong, td.col-dong{min-width:86px}
-    th.col-date, td.col-date{white-space:nowrap}
+    th.col-date, td.col-date{white-space:nowrap;min-width:5.5rem}
 
     .tag{display:inline-block;padding:.15rem .5rem;border-radius:5px;font-size:.75rem;font-weight:700;line-height:1.4}
     .tag.sale{background:var(--sale-bg);color:var(--sale);border:1px solid var(--sale-border)}
@@ -81,15 +81,18 @@
 
     .price{font-weight:800;font-size:.95rem;font-variant-numeric:tabular-nums;white-space:nowrap}
     .price.sale{color:var(--sale)}.price.jeonse{color:var(--jeonse)}
-    .price-sub{font-size:.78rem;color:var(--text-3);font-weight:500}
+    .price-sub{font-size:.78rem;color:var(--text-3);font-weight:500;white-space:nowrap}
 
     .area-main{font-weight:700;white-space:nowrap}
-    .area-sub{font-size:.78rem;color:var(--text-3)}
+    .area-line{white-space:nowrap}
+    .area-pyeong{font-size:.82rem;color:var(--text-1)}
+    .area-sub{font-size:.78rem;color:var(--text-3);white-space:nowrap}
+    .col-loc{white-space:nowrap}
 
     .desc{
       font-size:.82rem;
       color:var(--text-2);
-      max-width:320px;
+      min-width:270px;
       white-space:normal;
       line-height:1.35;
       word-break:keep-all;
@@ -117,8 +120,7 @@
       .container{padding:0 1rem 3rem}
       .header{padding:2rem 1rem 1.5rem}
       .tbl-wrap{border-radius:var(--radius-sm);overflow-x:auto;-webkit-overflow-scrolling:touch}
-      table{min-width:840px}
-      .desc{max-width:none}
+      table{min-width:420px}
     }
 
     /* ── Entrance animation ── */
@@ -264,17 +266,14 @@ function section(c) {
 }
 
 function renderTable(arts) {
+  arts = [...arts].sort((a, b) => (b.confirmDate || '').localeCompare(a.confirmDate || ''));
   return `<div class="tbl-wrap"><table>
     <thead><tr>
-      <th style="width:52px">유형</th>
       <th>가격</th>
-      <th class="col-area">면적</th>
-      <th class="col-dong">동</th>
-      <th>층</th>
-      <th>향</th>
+      <th>위치</th>
+      <th>등록</th>
       <th>특징</th>
-      <th>중개</th>
-      <th class="col-date">등록</th>
+      <th></th>
     </tr></thead>
     <tbody>${arts.map(row).join('')}</tbody>
   </table></div>`;
@@ -284,24 +283,27 @@ function row(a) {
   const cl = a.tradeType==='매매' ? 'sale' : 'jeonse';
   const price = showPrice(a);
   const rent = showRent(a);
+  const areaSub = a.pyeong ? `<b class="area-pyeong">${a.pyeong}평</b>` + (a.area ? ` <span class="area-sub">· ${a.area}㎡</span>` : '') : (a.area ? `<span class="area-sub">${a.area}㎡</span>` : '');
   const priceHtml = rent
-    ? `<div class="price ${cl}">${price}</div><div class="price-sub">월 ${rent}</div>`
-    : `<div class="price ${cl}">${price}</div>`;
+    ? `<div class="price ${cl}">${price}</div><div class="price-sub">월 ${rent}</div>${areaSub ? `<div class="area-line">${areaSub}</div>` : ''}`
+    : `<div class="price ${cl}">${price}</div>${areaSub ? `<div class="area-line">${areaSub}</div>` : ''}`;
 
-  const areaHtml = a.pyeong
-    ? `<span class="area-main">${a.pyeong}평</span>${a.area ? `<br><span class="area-sub">${a.area}㎡</span>`:''}`
-    : (a.area ? a.area+'㎡' : '—');
+  const dong = esc(a.dong) || '';
+  const rawFloor = esc(a.floor) || '';
+  const fl = rawFloor.includes('/') ? rawFloor.split('/')[0] + '층' : rawFloor;
+  const d = esc(dir(a.direction)) || '';
+  const locLine1 = dong;
+  const locLine2 = [fl, d ? d+'향' : ''].filter(Boolean).join(' ');
+  const locHtml = locLine1
+    ? `<b>${locLine1}</b>${locLine2 ? `<br><span class="area-sub">${locLine2}</span>` : ''}`
+    : (locLine2 || '—');
 
   return `<tr data-t="${esc(a.tradeType)}">
-    <td><span class="tag ${cl}">${esc(a.tradeType)}</span></td>
     <td>${priceHtml}</td>
-    <td class="col-area">${areaHtml}</td>
-    <td class="muted col-dong">${esc(a.dong)||'—'}</td>
-    <td class="muted">${esc(a.floor)||'—'}</td>
-    <td class="muted">${esc(dir(a.direction))||'—'}</td>
-    <td><div class="desc" title="${esc(a.description)}">${esc(a.description)||'—'}</div></td>
-    <td class="muted">${esc(a.realtor)}${a.cpName?`<span class="cp">${esc(a.cpName)}</span>`:''}</td>
+    <td class="col-loc">${locHtml}</td>
     <td class="muted col-date">${esc(a.confirmDate)}</td>
+    <td><div class="desc" title="${esc(a.description)}">${esc(a.description)||'—'}</div></td>
+    <td class="muted col-loc">${esc(a.realtor)}</td>
   </tr>`;
 }
 
